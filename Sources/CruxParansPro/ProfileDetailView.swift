@@ -116,6 +116,25 @@ struct ProfileDetailView: View {
                         }
                     }
                     
+                    Divider().background(deepNavyBlack).padding(.vertical, 10)
+                    
+                    // EXPORT CSV BUTTON
+                    if let csvURL = CSVExporter.generateCSV(profile: profile, heliacalRising: heliacalRisingStar, heliacalSetting: heliacalSettingStar, planetParans: planetParans, axisParans: axisParans) {
+                        ShareLink(item: csvURL) {
+                            HStack {
+                                Spacer()
+                                Image(systemName: "doc.text.fill")
+                                Text("EXPORT CLIENT DATA (.CSV)")
+                                    .fontWeight(.bold)
+                                Spacer()
+                            }
+                            .padding()
+                            .background(deepNavyBlack)
+                            .foregroundColor(paperWhite)
+                            .cornerRadius(8)
+                        }
+                    }
+                    
                 }
                 .padding()
                 .foregroundColor(deepNavyBlack)
