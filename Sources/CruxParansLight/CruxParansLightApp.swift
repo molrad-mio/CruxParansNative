@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct CruxParansLightApp: App {
@@ -6,5 +7,6 @@ struct CruxParansLightApp: App {
         WindowGroup {
             LightContentView()
         }
+        .modelContainer(for: UserProfile.self)
     }
 }

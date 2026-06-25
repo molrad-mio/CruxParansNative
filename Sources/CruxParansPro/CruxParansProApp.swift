@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct CruxParansProApp: App {
@@ -6,5 +7,6 @@ struct CruxParansProApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: UserProfile.self)
     }
 }
