@@ -110,15 +110,46 @@ struct LightContentView: View {
                     self.latitude = location.coordinate.latitude
                 }
                 
+                // Set default longitude if not retrieved (for accuracy, Geocoder should really return longitude too)
+                let lon = placemarks?.first?.location?.coordinate.longitude ?? 139.6917 // Tokyo default
+                
                 // Perform Astronomical Math
                 let math = AstronomicalMath.shared
-                if let heliacalStar = math.calculateHeliacalRisingStar(for: dateOfBirth, latitude: latitude, stars: FixedStarsData.lightStars) {
-                    self.topStar = heliacalStar.name
-                    self.topStarType = heliacalStar.type
-                } else {
-                    // Fallback to Galactic Center if circumpolar issues or extreme latitudes
+                let allParans = math.calculateAllParans(
+                    date: dateOfBirth, 
+                    latitude: latitude, 
+                    longitude: lon, 
+                    stars: FixedStarsData.lightStars
+                )
+                
+                // Collect all unique stars that formed at least one paran
+                var paranStars = Set<String>()
+                for p in allParans.planetParans { paranStars.insert(p.2) } // p.2 is starName
+                for a in allParans.axisParans { paranStars.insert(a.1) }   // a.1 is starName
+                
+                if paranStars.isEmpty {
                     self.topStar = "Galactic Center"
                     self.topStarType = "None"
+                } else {
+                    let typeRanks: [String: Int] = ["Royal": 4, "Intense": 3, "Crossroad": 2, "Karma": 1]
+                    
+                    // Map star names back to FixedStar objects to check their types
+                    let matchedStarObjects = FixedStarsData.lightStars.filter { paranStars.contains($0.name) }
+                    
+                    // Sort by highest rank first
+                    let sortedStars = matchedStarObjects.sorted { s1, s2 in
+                        let rank1 = typeRanks[s1.type] ?? 0
+                        let rank2 = typeRanks[s2.type] ?? 0
+                        return rank1 > rank2
+                    }
+                    
+                    if let highestStar = sortedStars.first {
+                        self.topStar = highestStar.name
+                        self.topStarType = highestStar.type
+                    } else {
+                        self.topStar = "Galactic Center"
+                        self.topStarType = "None"
+                    }
                 }
                 
                 isCalculating = false

@@ -184,8 +184,16 @@ struct ProfileDetailView: View {
             self.heliacalRisingStar = "N/A"
         }
         
-        self.heliacalSettingStar = "Spica (Mock)"
-        self.planetParans = MockParansGenerator.generatePlanetParans(seed: profile.name)
-        self.axisParans = MockParansGenerator.generateAxisParans(seed: profile.name)
+        self.heliacalSettingStar = "N/A" // Simplified for now
+        
+        let allParans = math.calculateAllParans(
+            date: profile.dateOfBirth, 
+            latitude: profile.latitude, 
+            longitude: profile.longitude, 
+            stars: FixedStarsData.proStars
+        )
+        
+        self.planetParans = allParans.planetParans
+        self.axisParans = allParans.axisParans
     }
 }

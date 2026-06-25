@@ -14,31 +14,12 @@ public class AstronomicalMath {
         return date.timeIntervalSince1970 / 86400.0 + 2440587.5
     }
     
-    // MARK: - Sun Position (Approximation for Parans)
+    // MARK: - Sun Position (True Celestial Engine)
     /// Returns the Right Ascension and Declination of the Sun for a given Date.
     public func sunPosition(for date: Date) -> (ra: Double, dec: Double) {
         let jd = julianDay(from: date)
-        let d = jd - 2451545.0 // Days since J2000.0
-        
-        // Mean anomaly of the Sun
-        let g = (357.529 + 0.98560028 * d).normalizedDegrees()
-        // Mean longitude of the Sun
-        let q = (280.459 + 0.98564736 * d).normalizedDegrees()
-        
-        // Ecliptic longitude of the Sun
-        let l = (q + 1.915 * sin(g * deg2rad) + 0.020 * sin(2 * g * deg2rad)).normalizedDegrees()
-        
-        // Obliquity of the ecliptic
-        let e = 23.439 - 0.00000036 * d
-        
-        // Right Ascension
-        var ra = atan2(cos(e * deg2rad) * sin(l * deg2rad), cos(l * deg2rad)) * rad2deg
-        ra = ra.normalizedDegrees()
-        
-        // Declination
-        let dec = asin(sin(e * deg2rad) * sin(l * deg2rad)) * rad2deg
-        
-        return (ra, dec)
+        // SE_SUN = 0
+        return SwephWrapper.shared.calculatePlanetPosition(julianDay: jd, planetId: 0)
     }
     
     // MARK: - Oblique Ascension / Descension
@@ -56,9 +37,23 @@ public class AstronomicalMath {
         let ad = asin(sinAD) * rad2deg
         
         let oa = (ra - ad).normalizedDegrees()
-        let od = (ra + ad).normalizedDegrees()
+        let od = (ra + ad + 180.0).normalizedDegrees() // Corrected OD formula: RA + AD + 180
         
         return (oa, od)
+    }
+    
+    // MARK: - LST of Angles
+    /// Calculates the Local Sidereal Time (LST) when a body crosses the 4 major angles.
+    public func computeLSTAngles(ra: Double, dec: Double, lat: Double) -> [String: Double]? {
+        guard let oaOd = computeOA_OD(ra: ra, dec: dec, lat: lat) else {
+            return nil // Circumpolar
+        }
+        return [
+            "ASC": oaOd.oa,
+            "DSC": oaOd.od,
+            "MC": ra.normalizedDegrees(),
+            "IC": (ra + 180.0).normalizedDegrees()
+        ]
     }
     
     // MARK: - Heliacal Rising Star
@@ -95,5 +90,83 @@ public class AstronomicalMath {
         }
         
         return bestStar
+    }
+
+    // MARK: - Full Parans Calculation (True Engine)
+    /// Calculates all valid Parans (Planet-Star and Axis-Star) for a given birth moment.
+    public func calculateAllParans(date: Date, latitude: Double, longitude: Double, stars: [FixedStar]) 
+    -> (planetParans: [(String, String, String, String, String)], axisParans: [(String, String, String)]) {
+        
+        let jd = julianDay(from: date)
+        
+        // 1. Calculate Birth LST (Local Sidereal Time)
+        // GST is returned in hours (0-24), convert to degrees (0-360)
+        let gstHours = SwephWrapper.shared.getGreenwichSiderealTime(julianDay: jd)
+        let gstDegrees = gstHours * 15.0
+        let birthLST = (gstDegrees + longitude).normalizedDegrees()
+        
+        // Setup angle coordinates for the birth moment
+        let birthAngles: [String: Double] = [
+            "MC": birthLST,
+            "IC": (birthLST + 180.0).normalizedDegrees(),
+            // For true ASC/DSC LST, we use the latitude.
+            // However, Axis Parans conceptually mean "Star is on Angle exactly at Birth LST".
+            // So a Star is on the MC if Star's RA == birthLST.
+            // A star is on the ASC if Star's OA == birthLST.
+            "ASC": birthLST,
+            "DSC": birthLST
+        ]
+        
+        var pParans: [(String, String, String, String, String)] = []
+        var aParans: [(String, String, String)] = []
+        
+        let planets: [(name: String, id: Int32)] = [
+            ("Sun", 0), ("Moon", 1), ("Mercury", 2), ("Venus", 3), 
+            ("Mars", 4), ("Jupiter", 5), ("Saturn", 6)
+        ]
+        
+        let orbDeg = 1.0 // 1 degree standard orb for parans
+        
+        // Pre-calculate Planet Angles
+        var planetAnglesMap: [String: [String: Double]] = [:]
+        for planet in planets {
+            let pos = SwephWrapper.shared.calculatePlanetPosition(julianDay: jd, planetId: planet.id)
+            if let angles = computeLSTAngles(ra: pos.ra, dec: pos.dec, lat: latitude) {
+                planetAnglesMap[planet.name] = angles
+            }
+        }
+        
+        // Compare with Stars
+        for star in stars {
+            guard let starAngles = computeLSTAngles(ra: star.rightAscension, dec: star.declination, lat: latitude) else {
+                continue // Skip circumpolar stars
+            }
+            
+            // Axis Parans Check
+            for (angleName, starLST) in starAngles {
+                let diff = abs(starLST - birthAngles[angleName]!)
+                let wrappedDiff = min(diff, 360.0 - diff)
+                if wrappedDiff <= orbDeg {
+                    let orbStr = String(format: "0°%02d'", Int(wrappedDiff * 60))
+                    aParans.append((angleName, star.name, orbStr))
+                }
+            }
+            
+            // Planet Parans Check
+            for (planetName, pAngles) in planetAnglesMap {
+                for (pAngleName, pLST) in pAngles {
+                    for (sAngleName, sLST) in starAngles {
+                        let diff = abs(pLST - sLST)
+                        let wrappedDiff = min(diff, 360.0 - diff)
+                        if wrappedDiff <= orbDeg {
+                            let orbStr = String(format: "0°%02d'", Int(wrappedDiff * 60))
+                            pParans.append((planetName, pAngleName, star.name, sAngleName, orbStr))
+                        }
+                    }
+                }
+            }
+        }
+        
+        return (pParans, aParans)
     }
 }

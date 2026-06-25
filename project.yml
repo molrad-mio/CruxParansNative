@@ -24,6 +24,7 @@ targets:
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         SWIFT_VERSION: 5.0
         DEVELOPMENT_TEAM: 7K7A8W84L3
+        SWIFT_OBJC_BRIDGING_HEADER: Sources/Shared/Sweph/SwephWrapper-Bridging-Header.h
     dependencies:
       - package: Firebase
         product: FirebaseCrashlytics
@@ -43,6 +44,7 @@ targets:
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         SWIFT_VERSION: 5.0
         DEVELOPMENT_TEAM: 7K7A8W84L3
+        SWIFT_OBJC_BRIDGING_HEADER: Sources/Shared/Sweph/SwephWrapper-Bridging-Header.h
     dependencies:
       - package: Firebase
         product: FirebaseCrashlytics
