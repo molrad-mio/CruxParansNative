@@ -13,6 +13,8 @@ struct ProfileDetailView: View {
     @State private var planetParans: [(planet: String, angle1: String, star: String, angle2: String, orb: String)] = []
     @State private var axisParans: [(axis: String, star: String, orb: String)] = []
     
+    @State private var selectedEventID: String? = nil
+    
     // Medical Grade Colors
     let paperWhite = Color(red: 245/255, green: 245/255, blue: 220/255)
     let papyrusColor = Color(red: 232/255, green: 220/255, blue: 196/255)
@@ -84,34 +86,33 @@ struct ProfileDetailView: View {
                         Text("[ 2026 TRIPLE-LAYER PARANS TIMELINE ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
                         
-                        // Event 1 (T x N)
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Text("🔴【T✕N】 2026.06.24 13:31")
-                                    .font(.system(size: 16 * textScale, weight: .bold))
-                                Spacer()
-                                Text("[ ✎ ]")
-                                    .font(.system(size: 16 * textScale, weight: .bold))
-                            }
-                            Text("T-Jupiter at ASC\n✕\nN-Spica at MC")
-                                .font(.system(size: 16 * textScale, weight: .bold))
-                            Text("✍：大口契約獲得の日。的中。")
-                                .font(.system(size: 14 * textScale, weight: .bold))
-                        }
+                        let events = [
+                            ("Event1", "🔴【T✕N】 2026.06.24 13:31", "T-Jupiter at ASC\n✕\nN-Spica at MC"),
+                            ("Event2", "🔵【P✕N】 2026.10.12 09:15", "P-Sun at MC\n✕\nN-Regulus at ASC")
+                        ]
                         
-                        // Event 2 (P x N)
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Text("🔵【P✕N】 2026.10.12 09:15")
+                        ForEach(events, id: \.0) { eventID, header, bodyText in
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text(header)
+                                        .font(.system(size: 16 * textScale, weight: .bold))
+                                    Spacer()
+                                    Button("[ ✎ ]") {
+                                        selectedEventID = eventID
+                                    }
                                     .font(.system(size: 16 * textScale, weight: .bold))
-                                Spacer()
-                                Text("[ ✎ ]")
+                                    .foregroundColor(deepNavyBlack)
+                                }
+                                Text(bodyText)
                                     .font(.system(size: 16 * textScale, weight: .bold))
+                                
+                                if let existingNote = profile.notes.first(where: { $0.eventID == eventID }), !existingNote.content.isEmpty {
+                                    Text("✍：\(existingNote.content)")
+                                        .font(.system(size: 14 * textScale, weight: .bold))
+                                        .padding(.top, 4)
+                                }
                             }
-                            Text("P-Sun at MC\n✕\nN-Regulus at ASC")
-                                .font(.system(size: 16 * textScale, weight: .bold))
-                            Text("✍：魂の体内時計が、帝王の覚醒を告げる。")
-                                .font(.system(size: 14 * textScale, weight: .bold))
+                            .padding(.bottom, 8)
                         }
                     }
                     
@@ -145,6 +146,14 @@ struct ProfileDetailView: View {
         .toolbarBackground(.visible, for: .navigationBar)
         .onAppear {
             calculateParans()
+        }
+        .sheet(isPresented: Binding(
+            get: { selectedEventID != nil },
+            set: { if !$0 { selectedEventID = nil } }
+        )) {
+            if let eventID = selectedEventID {
+                NoteEditorSheet(profile: profile, eventID: eventID)
+            }
         }
     }
     
