@@ -14,11 +14,15 @@ workflows:
       - name: Generate Xcode Project
         script: |
           xcodegen generate
+      - name: Fetch signing files from Apple
+        script: |
+          app-store-connect fetch-signing-files "com.alpheratzlab.cruxparanspro" --type IOS_APP_STORE --create
+      - name: Set up signing certificate
+        script: keychain add-certificates
+      - name: Set up code signing settings on Xcode project
+        script: xcode-project use-profiles
       - name: Build Pro Edition
         script: |
-          xcodebuild build -project CruxParans.xcodeproj -scheme CruxParansPro -destination "generic/platform=iOS" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
-      - name: Build Light Edition
-        script: |
-          xcodebuild build -project CruxParans.xcodeproj -scheme CruxParansLight -destination "generic/platform=iOS" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+          xcode-project build-ipa --project "CruxParans.xcodeproj" --scheme "CruxParansPro"
     artifacts:
       - build/ios/ipa/*.ipa
