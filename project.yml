@@ -1,0 +1,46 @@
+name: CruxParans
+options:
+  bundleIdPrefix: com.fomalhautlab
+  developmentLanguage: en
+
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: 10.27.0
+
+targets:
+  CruxParansPro:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Sources/CruxParansPro
+      - path: Sources/Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.fomalhautlab.cruxparanspro
+        INFOPLIST_KEY_UILaunchStoryboardName: LaunchScreen
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        SWIFT_VERSION: 5.0
+        DEVELOPMENT_TEAM: 7K7A8W84L3
+    dependencies:
+      - package: Firebase
+        product: FirebaseCrashlytics
+
+  CruxParansLight:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Sources/CruxParansLight
+      - path: Sources/Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.fomalhautlab.cruxparanslight
+        INFOPLIST_KEY_UILaunchStoryboardName: LaunchScreen
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        SWIFT_VERSION: 5.0
+        DEVELOPMENT_TEAM: 7K7A8W84L3
+    dependencies:
+      - package: Firebase
+        product: FirebaseCrashlytics

@@ -1,0 +1,140 @@
+import SwiftUI
+
+struct ContentView: View {
+    @State private var textScale: CGFloat = 1.0
+    @State private var isPapyrusMode: Bool = false
+    
+    // Medical Grade Colors
+    let paperWhite = Color(red: 245/255, green: 245/255, blue: 220/255)
+    let papyrusColor = Color(red: 232/255, green: 220/255, blue: 196/255)
+    let deepNavyBlack = Color(red: 10/255, green: 17/255, blue: 40/255)
+
+    var body: some View {
+        let bgColor = isPapyrusMode ? papyrusColor : paperWhite
+        
+        NavigationStack {
+            ZStack {
+                bgColor.ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        
+                        // 1. HELIACAL STARS
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("[ 1. HELIACAL STARS ]")
+                                .font(.system(size: 18 * textScale, weight: .bold))
+                            Text("- Heliacal Rising Star: Sirius")
+                                .font(.system(size: 16 * textScale, weight: .bold))
+                            Text("- Heliacal Setting Star: Fomalhaut")
+                                .font(.system(size: 16 * textScale, weight: .bold))
+                            Text("- Sect of Birth: Diurnal (Day)")
+                                .font(.system(size: 16 * textScale, weight: .bold))
+                        }
+                        
+                        // 2. PLANET X STAR PARANS
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("[ 2. PLANET X STAR PARANS ]")
+                                .font(.system(size: 18 * textScale, weight: .bold))
+                            Text("- Sun (ASC) ✕ Spica (MC) [Orb: 0°12']")
+                                .font(.system(size: 16 * textScale, weight: .bold))
+                            Text("- Mars (DSC) ✕ Algol (IC) [Orb: 0°45']")
+                                .font(.system(size: 16 * textScale, weight: .bold))
+                        }
+                        
+                        // 3. AXIS X STAR PARANS
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("[ 3. AXIS X STAR PARANS ]")
+                                .font(.system(size: 18 * textScale, weight: .bold))
+                            Text("- ASC ✕ Procyon [Orb: 0°15']")
+                                .font(.system(size: 16 * textScale, weight: .bold))
+                            Text("- MC ✕ Regulus [Orb: 0°05']")
+                                .font(.system(size: 16 * textScale, weight: .bold))
+                        }
+                        
+                        Divider().background(deepNavyBlack)
+                        
+                        // SOLAR RETURN
+                        VStack(alignment: .center, spacing: 8) {
+                            Text("[ 🔍 ENTER YEAR: 2026 ]")
+                                .font(.system(size: 20 * textScale, weight: .bold))
+                                .frame(maxWidth: .infinity)
+                        }
+                        
+                        Divider().background(deepNavyBlack)
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("[ 2026 SOLAR RETURN STARS ]")
+                                .font(.system(size: 18 * textScale, weight: .bold))
+                            Text("- ASC X Regulus")
+                                .font(.system(size: 16 * textScale, weight: .bold))
+                            Text("- MC X Spica")
+                                .font(.system(size: 16 * textScale, weight: .bold))
+                        }
+                        
+                        // TRIPLE-LAYER TIMELINE
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("[ 2026 TRIPLE-LAYER PARANS TIMELINE ]")
+                                .font(.system(size: 18 * textScale, weight: .bold))
+                            
+                            // Event 1 (T x N)
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text("🔴【T✕N】 2026.06.24 13:31")
+                                        .font(.system(size: 16 * textScale, weight: .bold))
+                                    Spacer()
+                                    Text("[ ✎ ]")
+                                        .font(.system(size: 16 * textScale, weight: .bold))
+                                }
+                                Text("T-Jupiter at ASC\n✕\nN-Spica at MC")
+                                    .font(.system(size: 16 * textScale, weight: .bold))
+                                Text("✍：大口契約獲得の日。的中。")
+                                    .font(.system(size: 14 * textScale, weight: .bold))
+                            }
+                            
+                            // Event 2 (P x N)
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text("🔵【P✕N】 2026.10.12 09:15")
+                                        .font(.system(size: 16 * textScale, weight: .bold))
+                                    Spacer()
+                                    Text("[ ✎ ]")
+                                        .font(.system(size: 16 * textScale, weight: .bold))
+                                }
+                                Text("P-Sun at MC\n✕\nN-Regulus at ASC")
+                                    .font(.system(size: 16 * textScale, weight: .bold))
+                                Text("✍：魂の体内時計が、帝王の覚醒を告げる。")
+                                    .font(.system(size: 14 * textScale, weight: .bold))
+                            }
+                        }
+                        
+                    }
+                    .padding()
+                    .foregroundColor(deepNavyBlack)
+                }
+            }
+            .navigationTitle("📊 CLIENT: JOHN DOE")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack {
+                        Button("[ ᴀA ]") {
+                            if textScale == 1.0 { textScale = 1.2 }
+                            else if textScale == 1.2 { textScale = 1.5 }
+                            else { textScale = 1.0 }
+                        }
+                        .foregroundColor(deepNavyBlack)
+                        .fontWeight(.bold)
+                        
+                        Button("[ 👁️ Papyrus ]") {
+                            isPapyrusMode.toggle()
+                        }
+                        .foregroundColor(deepNavyBlack)
+                        .fontWeight(.bold)
+                    }
+                }
+            }
+            .toolbarBackground(bgColor, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+        }
+    }
+}
