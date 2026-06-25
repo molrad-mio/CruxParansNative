@@ -10,6 +10,9 @@ struct ProfileDetailView: View {
     @State private var heliacalRisingStar: String = "Calculating..."
     @State private var heliacalSettingStar: String = "Calculating..."
     
+    @State private var planetParans: [(planet: String, angle1: String, star: String, angle2: String, orb: String)] = []
+    @State private var axisParans: [(axis: String, star: String, orb: String)] = []
+    
     // Medical Grade Colors
     let paperWhite = Color(red: 245/255, green: 245/255, blue: 220/255)
     let papyrusColor = Color(red: 232/255, green: 220/255, blue: 196/255)
@@ -40,20 +43,20 @@ struct ProfileDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("[ 2. PLANET X STAR PARANS ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
-                        Text("- Sun (ASC) ✕ Spica (MC) [Orb: 0°12']")
-                            .font(.system(size: 16 * textScale, weight: .bold))
-                        Text("- Mars (DSC) ✕ Algol (IC) [Orb: 0°45']")
-                            .font(.system(size: 16 * textScale, weight: .bold))
+                        ForEach(planetParans, id: \.star) { paran in
+                            Text("- \(paran.planet) (\(paran.angle1)) ✕ \(paran.star) (\(paran.angle2)) [Orb: \(paran.orb)]")
+                                .font(.system(size: 16 * textScale, weight: .bold))
+                        }
                     }
                     
                     // 3. AXIS X STAR PARANS
                     VStack(alignment: .leading, spacing: 8) {
                         Text("[ 3. AXIS X STAR PARANS ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
-                        Text("- ASC ✕ Procyon [Orb: 0°15']")
-                            .font(.system(size: 16 * textScale, weight: .bold))
-                        Text("- MC ✕ Regulus [Orb: 0°05']")
-                            .font(.system(size: 16 * textScale, weight: .bold))
+                        ForEach(axisParans, id: \.star) { paran in
+                            Text("- \(paran.axis) ✕ \(paran.star) [Orb: \(paran.orb)]")
+                                .font(.system(size: 16 * textScale, weight: .bold))
+                        }
                     }
                     
                     Divider().background(deepNavyBlack)
@@ -153,7 +156,8 @@ struct ProfileDetailView: View {
             self.heliacalRisingStar = "N/A"
         }
         
-        // Mocking Setting Star for now
         self.heliacalSettingStar = "Spica (Mock)"
+        self.planetParans = MockParansGenerator.generatePlanetParans(seed: profile.name)
+        self.axisParans = MockParansGenerator.generateAxisParans(seed: profile.name)
     }
 }

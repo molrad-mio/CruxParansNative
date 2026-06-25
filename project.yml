@@ -1,6 +1,6 @@
 name: CruxParans
 options:
-  bundleIdPrefix: com.fomalhautlab
+  bundleIdPrefix: com.alpheratzlab
   developmentLanguage: en
 
 packages:
@@ -18,7 +18,7 @@ targets:
       - path: Sources/Shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.fomalhautlab.cruxparanspro
+        PRODUCT_BUNDLE_IDENTIFIER: com.alpheratzlab.cruxparanspro
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchStoryboardName: LaunchScreen
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
@@ -37,7 +37,7 @@ targets:
       - path: Sources/Shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.fomalhautlab.cruxparanslight
+        PRODUCT_BUNDLE_IDENTIFIER: com.alpheratzlab.cruxparanslight
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchStoryboardName: LaunchScreen
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
