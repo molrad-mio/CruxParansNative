@@ -1,64 +1,134 @@
 import SwiftUI
+import SwiftData
+import CoreLocation
 
 struct LightContentView: View {
-    @State private var topStar: String = "Galactic Center"
-    @State private var topStarLore: String = "The star that locks thy soul exists nowhere in the firmament. Thou belongest to no faction of the gods; thou art a person of the absolute Void."
+    @Environment(\.modelContext) private var modelContext
     
-    // Light Edition Colors (Can be more modern/mystical)
-    let deepSpaceBlack = Color(red: 5/255, green: 5/255, blue: 15/255)
-    let starWhite = Color.white
-
+    @State private var dateOfBirth: Date = Date()
+    @State private var city: String = "Tokyo"
+    @State private var latitude: Double = 35.6895
+    
+    @State private var topStar: String = "Galactic Center"
+    @State private var topStarType: String = "None"
+    
+    @State private var isCalculating: Bool = false
+    
     var body: some View {
-        ZStack {
-            deepSpaceBlack.ignoresSafeArea()
-            
-            VStack(spacing: 32) {
-                Text("Crux Parans")
-                    .font(.system(size: 24, weight: .light, design: .serif))
-                    .foregroundColor(starWhite)
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
                 
-                Spacer()
-                
-                Text("YOUR COSMIC ALIGNMENT")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(starWhite.opacity(0.7))
-                    .tracking(2.0)
-                
-                Text(topStar)
-                    .font(.system(size: 36, weight: .bold, design: .serif))
-                    .foregroundColor(starWhite)
-                
-                Text(topStarLore)
-                    .font(.system(size: 16, weight: .regular, design: .serif))
-                    .foregroundColor(starWhite.opacity(0.9))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-                    .lineSpacing(6)
-                
-                Spacer()
-                
-                Button(action: shareToSocialMedia) {
-                    HStack {
-                        Image(systemName: "square.and.arrow.up")
-                        Text("Share your Destiny")
+                VStack(spacing: 20) {
+                    
+                    // Input Section
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("Discover Your Soul's Star")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        
+                        DatePicker("Birth Date", selection: $dateOfBirth, displayedComponents: .date)
+                            .colorScheme(.dark)
+                        
+                        HStack {
+                            Text("Birth City")
+                                .foregroundColor(.white)
+                            Spacer()
+                            TextField("e.g. Tokyo", text: $city)
+                                .multilineTextAlignment(.trailing)
+                                .foregroundColor(.cyan)
+                        }
+                        
+                        Button(action: calculateMyStar) {
+                            Text("CALCULATE MY STAR")
+                                .font(.headline)
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.cyan)
+                                .cornerRadius(10)
+                        }
+                        .disabled(isCalculating)
                     }
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(deepSpaceBlack)
-                    .padding(.vertical, 16)
-                    .padding(.horizontal, 32)
-                    .background(starWhite)
-                    .cornerRadius(30)
+                    .padding()
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(15)
+                    .padding(.horizontal)
+                    
+                    Spacer()
+                    
+                    // Result Section
+                    VStack(spacing: 15) {
+                        Text("Your Heliacal Rising Star")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                            .tracking(2)
+                        
+                        Text(topStar.uppercased())
+                            .font(.system(size: 40, weight: .black, design: .rounded))
+                            .foregroundColor(.white)
+                            .shadow(color: .cyan, radius: 10, x: 0, y: 0)
+                        
+                        Text("TYPE: \(topStarType.uppercased())")
+                            .font(.headline)
+                            .foregroundColor(topStarType == "Royal" ? .yellow : .cyan)
+                    }
+                    
+                    Spacer()
+                    
+                    // Social Share Button
+                    Button(action: shareToInstagram) {
+                        HStack {
+                            Image(systemName: "square.and.arrow.up")
+                            Text("Share to Social Media")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .cornerRadius(30)
+                    }
+                    .padding(.horizontal, 40)
+                    .padding(.bottom, 20)
                 }
-                .padding(.bottom, 32)
+            }
+            .navigationTitle("Crux Parans Light")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .onAppear {
+            calculateMyStar()
+        }
+    }
+    
+    private func calculateMyStar() {
+        isCalculating = true
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(city) { placemarks, error in
+            DispatchQueue.main.async {
+                if let location = placemarks?.first?.location {
+                    self.latitude = location.coordinate.latitude
+                }
+                
+                // Perform Astronomical Math
+                let math = AstronomicalMath.shared
+                if let heliacalStar = math.calculateHeliacalRisingStar(for: dateOfBirth, latitude: latitude, stars: FixedStarsData.lightStars) {
+                    self.topStar = heliacalStar.name
+                    self.topStarType = heliacalStar.type
+                } else {
+                    // Fallback to Galactic Center if circumpolar issues or extreme latitudes
+                    self.topStar = "Galactic Center"
+                    self.topStarType = "None"
+                }
+                
+                isCalculating = false
             }
         }
     }
     
-    private func shareToSocialMedia() {
-        let hashtag = topStar == "Galactic Center" ? "#GalacticCenterTribe" : "#\(topStar.replacingOccurrences(of: " ", with: ""))Tribe"
-        let text = "Navigating the cosmic ocean. \(hashtag) #CruxParans"
-        
-        let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+    private func shareToInstagram() {
+        let textToShare = "My soul's fixed star is \(topStar)! Discover yours with Crux Parans Light. #CruxParans #\(topStar.replacingOccurrences(of: " ", with: ""))Tribe"
+        let activityVC = UIActivityViewController(activityItems: [textToShare], applicationActivities: nil)
         
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first,

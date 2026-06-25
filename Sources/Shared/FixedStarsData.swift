@@ -1,67 +1,65 @@
 import Foundation
 
-public struct FixedStar {
+public struct FixedStar: Identifiable {
+    public let id = UUID()
     public let name: String
     public let type: String // "Royal", "Intense", "Crossroad", "Karma"
-    public let longitude: Double // Approximation for mock logic until Swiss Ephemeris is linked
-    public let orb: Double
-    public let meaning: String
+    public let rightAscension: Double // RA in degrees (0 to 360)
+    public let declination: Double    // Dec in degrees (-90 to +90)
+    
+    public init(name: String, type: String, rightAscension: Double, declination: Double) {
+        self.name = name
+        self.type = type
+        self.rightAscension = rightAscension
+        self.declination = declination
+    }
 }
 
-public class FixedStarsData {
-    
-    // ==========================================
-    // PRO EDITION (30 Stars Strict List)
-    // ==========================================
+public struct FixedStarsData {
+    // Exact J2000 epoch coordinates for the 30 Pro Edition Fixed Stars
+    // (Approximated for this initial architecture, to be fine-tuned via Swiss Ephemeris API later)
     public static let proStars: [FixedStar] = [
-        // The 4 Royal Stars
-        FixedStar(name: "Fomalhaut", type: "Royal", longitude: 333.9, orb: 2.0, meaning: "King Star of beauty and solitude."),
-        FixedStar(name: "Aldebaran", type: "Royal", longitude: 69.8, orb: 2.0, meaning: "King Star of great integrity and material prosperity."),
-        FixedStar(name: "Regulus", type: "Royal", longitude: 149.8, orb: 2.0, meaning: "King Star of absolute authority and noble glory."),
-        FixedStar(name: "Antares", type: "Royal", longitude: 249.8, orb: 2.0, meaning: "King Star of conflict, destruction, and rebirth."),
+        FixedStar(name: "Aldebaran", type: "Royal", rightAscension: 68.98, declination: 16.51),
+        FixedStar(name: "Antares", type: "Royal", rightAscension: 247.35, declination: -26.43),
+        FixedStar(name: "Regulus", type: "Royal", rightAscension: 152.09, declination: 11.97),
+        FixedStar(name: "Fomalhaut", type: "Royal", rightAscension: 344.41, declination: -29.62),
         
-        // The 14 Intense Stars
-        FixedStar(name: "Algol", type: "Intense", longitude: 56.2, orb: 1.0, meaning: "Demon King - violence and destructive power."),
-        FixedStar(name: "Spica", type: "Intense", longitude: 203.8, orb: 1.0, meaning: "Heavenly benevolence and sacred genius."),
-        FixedStar(name: "Sirius", type: "Intense", longitude: 104.1, orb: 1.0, meaning: "Absolute ambition and supreme honor."),
-        FixedStar(name: "Procyon", type: "Intense", longitude: 115.8, orb: 1.0, meaning: "Swift incisiveness and transient victory."),
-        FixedStar(name: "Betelgeuse", type: "Intense", longitude: 88.8, orb: 1.0, meaning: "Immense honor and triumph."),
-        FixedStar(name: "Rigel", type: "Intense", longitude: 76.8, orb: 1.0, meaning: "Unyielding wisdom and guidance."),
-        FixedStar(name: "Canopus", type: "Intense", longitude: 104.9, orb: 1.0, meaning: "Profound wisdom and eternal navigation."),
-        FixedStar(name: "Capella", type: "Intense", longitude: 81.8, orb: 1.0, meaning: "Absolute independence and freedom."),
-        FixedStar(name: "Vega", type: "Intense", longitude: 285.3, orb: 1.0, meaning: "Supreme artistry and mesmerizing charisma."),
-        FixedStar(name: "Altair", type: "Intense", longitude: 301.8, orb: 1.0, meaning: "Unyielding courage and lofty flight."),
-        FixedStar(name: "Deneb", type: "Intense", longitude: 305.3, orb: 1.0, meaning: "Far-reaching intellect and imperishable inquiry."),
-        FixedStar(name: "Arcturus", type: "Intense", longitude: 204.2, orb: 1.0, meaning: "Vanguard star of transformation."),
-        FixedStar(name: "Achernar", type: "Intense", longitude: 351.6, orb: 1.0, meaning: "Lofty spirituality and ultimate salvation."),
-        FixedStar(name: "Pollux", type: "Intense", longitude: 113.2, orb: 1.0, meaning: "Cold insight and unyielding struggle."),
+        FixedStar(name: "Sirius", type: "Intense", rightAscension: 101.28, declination: -16.71),
+        FixedStar(name: "Canopus", type: "Intense", rightAscension: 95.98, declination: -52.69),
+        FixedStar(name: "Rigel", type: "Intense", rightAscension: 78.63, declination: -8.20),
+        FixedStar(name: "Spica", type: "Intense", rightAscension: 201.29, declination: -11.16),
+        FixedStar(name: "Vega", type: "Intense", rightAscension: 279.23, declination: 38.78),
+        FixedStar(name: "Capella", type: "Intense", rightAscension: 79.17, declination: 45.99),
+        FixedStar(name: "Arcturus", type: "Intense", rightAscension: 213.91, declination: 19.18),
+        FixedStar(name: "Procyon", type: "Intense", rightAscension: 114.82, declination: 5.22),
+        FixedStar(name: "Achernar", type: "Intense", rightAscension: 24.42, declination: -57.23),
+        FixedStar(name: "Betelgeuse", type: "Intense", rightAscension: 88.79, declination: 7.40),
+        FixedStar(name: "Altair", type: "Intense", rightAscension: 297.69, declination: 8.86),
+        FixedStar(name: "Algol", type: "Intense", rightAscension: 47.04, declination: 40.95),
+        FixedStar(name: "Alcyone", type: "Intense", rightAscension: 56.87, declination: 24.10),
+        FixedStar(name: "Pollux", type: "Intense", rightAscension: 116.32, declination: 28.02),
+        FixedStar(name: "Castor", type: "Intense", rightAscension: 113.64, declination: 31.88),
         
-        // 12 More stars to make 30
-        FixedStar(name: "Castor", type: "Intense", longitude: 110.2, orb: 1.0, meaning: "Sharp intellect and duality."),
-        FixedStar(name: "Bellatrix", type: "Intense", longitude: 81.0, orb: 1.0, meaning: "Female warrior - fighting for one's rights."),
-        FixedStar(name: "Markab", type: "Intense", longitude: 353.4, orb: 1.0, meaning: "Solid foundational skills and sorrow."),
-        FixedStar(name: "Scheat", type: "Intense", longitude: 359.2, orb: 1.0, meaning: "Genius thinking or intellect gone wild."),
-        FixedStar(name: "Algenib", type: "Intense", longitude: 9.1, orb: 1.0, meaning: "Strong will and penetrating mind."),
-        FixedStar(name: "Mirach", type: "Crossroad", longitude: 30.4, orb: 1.0, meaning: "Receptivity, beauty, love."),
-        FixedStar(name: "Polaris", type: "Crossroad", longitude: 88.5, orb: 1.0, meaning: "The pole star, unshakeable axis."),
-        FixedStar(name: "Alcyone", type: "Crossroad", longitude: 59.9, orb: 1.0, meaning: "Mysticism, inner vision."),
-        FixedStar(name: "Acrux", type: "Crossroad", longitude: 221.9, orb: 1.0, meaning: "Intuition, mystical trials."),
-        FixedStar(name: "Menkar", type: "Karma", longitude: 44.3, orb: 1.0, meaning: "Waves of change from collective unconscious."),
-        FixedStar(name: "Zosma", type: "Karma", longitude: 161.3, orb: 1.0, meaning: "Victimhood, bearing others' pain."),
-        FixedStar(name: "Denebola", type: "Karma", longitude: 171.6, orb: 1.0, meaning: "The outsider deviating from the mainstream.")
+        FixedStar(name: "Zubenelgenubi", type: "Crossroad", rightAscension: 222.71, declination: -16.04),
+        FixedStar(name: "Zubeneschamali", type: "Crossroad", rightAscension: 229.25, declination: -9.38),
+        FixedStar(name: "Alphard", type: "Crossroad", rightAscension: 141.89, declination: -8.65),
+        FixedStar(name: "Denebola", type: "Crossroad", rightAscension: 177.26, declination: 14.57),
+        FixedStar(name: "Vindemiatrix", type: "Crossroad", rightAscension: 195.53, declination: 10.95),
+        
+        FixedStar(name: "Acumen", type: "Karma", rightAscension: 266.31, declination: -39.02),
+        FixedStar(name: "Aculeus", type: "Karma", rightAscension: 268.21, declination: -39.01),
+        FixedStar(name: "Facies", type: "Karma", rightAscension: 284.66, declination: -22.56),
+        FixedStar(name: "Menkar", type: "Karma", rightAscension: 45.56, declination: 4.08),
+        FixedStar(name: "Mirach", type: "Karma", rightAscension: 17.43, declination: 35.62),
+        FixedStar(name: "Alpheratz", type: "Karma", rightAscension: 2.09, declination: 29.09)
     ]
     
-    // ==========================================
-    // LIGHT EDITION (20 Stars Strict List)
-    // ==========================================
-    public static let lightStars: [FixedStar] = Array(proStars.prefix(20)) // Mock implementation using first 20
-    
-    // Fallback for NONE results in Light Edition
-    public static let galacticCenter = FixedStar(
-        name: "Galactic Center",
-        type: "Void",
-        longitude: 267.0, // 27 Sagittarius
-        orb: 2.0,
-        meaning: "The star that locks thy soul exists nowhere in the firmament. Thou belongest to no faction of the gods; thou art a person of the absolute Void."
-    )
+    // Light Edition subset
+    public static let lightStars: [FixedStar] = [
+        proStars[0], proStars[1], proStars[2], proStars[3], // 4 Royals
+        proStars[4], proStars[6], proStars[7], proStars[8], proStars[13], // 5 Intense
+        proStars[19], proStars[20], proStars[21], proStars[22], proStars[23], // 5 Crossroads
+        proStars[24], proStars[25], proStars[26], proStars[27], proStars[28], // 5 Karma
+        FixedStar(name: "Galactic Center", type: "None", rightAscension: 266.41, declination: -29.00) // Fallback
+    ]
 }
