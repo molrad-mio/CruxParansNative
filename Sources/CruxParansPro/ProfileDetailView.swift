@@ -6,6 +6,10 @@ struct ProfileDetailView: View {
     @State private var textScale: CGFloat = 1.0
     @State private var isPapyrusMode: Bool = false
     
+    // Dynamic Astronomical Data
+    @State private var heliacalRisingStar: String = "Calculating..."
+    @State private var heliacalSettingStar: String = "Calculating..."
+    
     // Medical Grade Colors
     let paperWhite = Color(red: 245/255, green: 245/255, blue: 220/255)
     let papyrusColor = Color(red: 232/255, green: 220/255, blue: 196/255)
@@ -20,13 +24,13 @@ struct ProfileDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     
-                    // 1. HELIACAL STARS
+                    // 1. HELIACAL STARS (DYNAMIC CALCULATION)
                     VStack(alignment: .leading, spacing: 8) {
                         Text("[ 1. HELIACAL STARS ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
-                        Text("- Heliacal Rising Star: Sirius")
+                        Text("- Heliacal Rising Star: \(heliacalRisingStar)")
                             .font(.system(size: 16 * textScale, weight: .bold))
-                        Text("- Heliacal Setting Star: Fomalhaut")
+                        Text("- Heliacal Setting Star: \(heliacalSettingStar)")
                             .font(.system(size: 16 * textScale, weight: .bold))
                         Text("- Sect of Birth: Diurnal (Day)")
                             .font(.system(size: 16 * textScale, weight: .bold))
@@ -136,5 +140,20 @@ struct ProfileDetailView: View {
         }
         .toolbarBackground(bgColor, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
+        .onAppear {
+            calculateParans()
+        }
+    }
+    
+    private func calculateParans() {
+        let math = AstronomicalMath.shared
+        if let rising = math.calculateHeliacalRisingStar(for: profile.dateOfBirth, latitude: profile.latitude, stars: FixedStarsData.proStars) {
+            self.heliacalRisingStar = rising.name
+        } else {
+            self.heliacalRisingStar = "N/A"
+        }
+        
+        // Mocking Setting Star for now
+        self.heliacalSettingStar = "Spica (Mock)"
     }
 }
