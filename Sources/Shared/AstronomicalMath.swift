@@ -167,6 +167,14 @@ public class AstronomicalMath {
             }
         }
         
-        return (pParans, aParans)
     }
 }
+
+extension Double {
+    func normalizedDegrees() -> Double {
+        var res = self.truncatingRemainder(dividingBy: 360.0)
+        if res < 0 { res += 360.0 }
+        return res
+    }
+}
+
