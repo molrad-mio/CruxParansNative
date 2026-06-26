@@ -5,6 +5,9 @@ workflows:
     integrations:
       app_store_connect: Codemagic
     environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.alpheratzlab.cruxparanspro
       vars:
         BUILD_TYPE: "TEST"
     scripts:
@@ -14,9 +17,6 @@ workflows:
       - name: Generate Xcode Project
         script: |
           xcodegen generate
-      - name: Fetch signing files from Apple
-        script: |
-          app-store-connect fetch-signing-files "com.alpheratzlab.cruxparanspro" --type IOS_APP_STORE --create
       - name: Set up signing certificate
         script: keychain add-certificates
       - name: Set up code signing settings on Xcode project
