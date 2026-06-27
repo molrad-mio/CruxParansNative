@@ -23,6 +23,13 @@ struct ProfileDetailView: View {
     let deepNavyBlack = Color(red: 10/255, green: 17/255, blue: 40/255)
     let vintageBrown = Color(red: 139/255, green: 69/255, blue: 19/255) // SaddleBrown for a leather/parchment vibe
 
+    private var timelineEvents: [(id: String, type: String, date: String, description: String)] {
+        return [
+            ("Event0", "P", "\(String(targetYear)).03.15 08:20", "P-Mars at IC ✕ N-Algol at DSC"),
+            ("Event1", "T", "\(String(targetYear)).06.24 13:31", "T-Jupiter at ASC ✕ N-Spica at MC"),
+            ("Event2", "P", "\(String(targetYear)).10.12 09:15", "P-Sun at MC ✕ N-Regulus at ASC")
+        ]
+    }
 
     var body: some View {
         let bgColor = isPapyrusMode ? papyrusColor : paperWhite
@@ -154,11 +161,7 @@ struct ProfileDetailView: View {
                             .font(.system(size: 18 * textScale, weight: .bold))
                         
                         let currentDateStr = "2026.06.27" // Mock today
-                        let allEvents = [
-                            ("Event0", "P", "\(String(targetYear)).03.15 08:20", "P-Mars at IC ✕ N-Algol at DSC"),
-                            ("Event1", "T", "\(String(targetYear)).06.24 13:31", "T-Jupiter at ASC ✕ N-Spica at MC"),
-                            ("Event2", "P", "\(String(targetYear)).10.12 09:15", "P-Sun at MC ✕ N-Regulus at ASC")
-                        ]
+                        let allEvents = self.timelineEvents
                         
                         let pastEvents = allEvents.filter { $0.2 < currentDateStr }
                         let futureEvents = allEvents.filter { $0.2 >= currentDateStr }
@@ -188,7 +191,7 @@ struct ProfileDetailView: View {
                     Divider().background(deepNavyBlack).padding(.vertical, 10)
                     
                     // EXPORT CSV BUTTON
-                    if let csvURL = CSVExporter.generateCSV(profile: profile, heliacalRising: heliacalRisingStar, heliacalSetting: heliacalSettingStar, planetParans: planetParans, axisParans: axisParans) {
+                    if let csvURL = CSVExporter.generateCSV(profile: profile, heliacalRising: heliacalRisingStar, heliacalSetting: heliacalSettingStar, planetParans: planetParans, axisParans: axisParans, timelineEvents: timelineEvents) {
                         ShareLink(item: csvURL) {
                             HStack {
                                 Spacer()
