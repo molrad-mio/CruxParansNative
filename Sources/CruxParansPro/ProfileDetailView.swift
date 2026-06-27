@@ -327,11 +327,6 @@ struct ProfileDetailView: View {
                     .font(.system(size: 16 * textScale, weight: .bold))
                     
                 Spacer()
-                Button("[ ✎ ]") {
-                    selectedEventID = eventID
-                }
-                .font(.system(size: 16 * textScale, weight: .bold))
-                .foregroundColor(deepNavyBlack)
             }
             Text(bodyText)
                 .font(.system(size: 16 * textScale, weight: .bold))
