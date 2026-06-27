@@ -9,15 +9,15 @@ public class CSVExporter {
                                    axisParans: [(axis: String, star: String, orb: String)]) -> URL? {
         
         var csvString = "Crux Parans Pro - Astrological Report\n"
-        csvString += "Client Name, \(profile.name)\n"
+        csvString += "Client Name, \"\(profile.name)\"\n"
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .short
         
-        csvString += "Date of Birth, \(dateFormatter.string(from: profile.dateOfBirth))\n"
-        csvString += "Birth City, \(profile.birthCity)\n"
-        csvString += "Coordinates, \(profile.latitude) / \(profile.longitude)\n\n"
+        csvString += "Date of Birth, \"\(dateFormatter.string(from: profile.dateOfBirth))\"\n"
+        csvString += "Birth City, \"\(profile.birthCity)\"\n"
+        csvString += "Coordinates, \"\(profile.latitude) / \(profile.longitude)\"\n\n"
         
         csvString += "--- HELIACAL STARS ---\n"
         csvString += "Rising Star, \(heliacalRising)\n"
@@ -40,7 +40,7 @@ public class CSVExporter {
         csvString += "--- PROFESSIONAL NOTES ---\n"
         csvString += "Event ID,Note,Timestamp\n"
         for note in profile.notes {
-            csvString += "\(note.eventID),\"\(note.content.replacingOccurrences(of: "\"", with: "\"\""))\",\(dateFormatter.string(from: note.timestamp))\n"
+            csvString += "\"\(note.eventID)\",\"\(note.content.replacingOccurrences(of: "\"", with: "\"\""))\",\"\(dateFormatter.string(from: note.timestamp))\"\n"
         }
         
         let fileName = "\(profile.name.replacingOccurrences(of: " ", with: "_"))_Parans_Report.csv"
