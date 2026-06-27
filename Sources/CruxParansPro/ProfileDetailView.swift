@@ -127,8 +127,8 @@ struct ProfileDetailView: View {
                             .font(.system(size: 18 * textScale, weight: .bold))
                         
                         let events = [
-                            ("Event1", "🔴【T✕N】 2026.06.24 13:31", "T-Jupiter at ASC\n✕\nN-Spica at MC"),
-                            ("Event2", "🔵【P✕N】 2026.10.12 09:15", "P-Sun at MC\n✕\nN-Regulus at ASC")
+                            ("Event1", "🔴【T✕N】 2026.06.24 13:31", "T-Jupiter at ASC ✕ N-Spica at MC"),
+                            ("Event2", "🔵【P✕N】 2026.10.12 09:15", "P-Sun at MC ✕ N-Regulus at ASC")
                         ]
                         
                         ForEach(events, id: \.0) { eventID, header, bodyText in
