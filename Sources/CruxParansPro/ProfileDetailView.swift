@@ -375,7 +375,7 @@ struct ProfileDetailView: View {
                     Spacer()
                 }
                 .padding(8)
-                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .frame(maxWidth: .infinity, minHeight: 40, alignment: .topLeading)
                 .background(papyrusColor.opacity(0.3))
                 .cornerRadius(6)
                 .overlay(
