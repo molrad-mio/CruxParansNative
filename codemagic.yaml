@@ -17,6 +17,17 @@ workflows:
       - name: Generate Xcode Project
         script: |
           xcodegen generate
+      - name: Set up keychain
+        script: keychain initialize
+      - name: Fetch signing files from Apple
+        script: |
+          set -e
+          set -x
+          app-store-connect fetch-signing-files "com.alpheratzlab.cruxparanspro" --type IOS_APP_STORE --create
+      - name: Set up signing certificate
+        script: keychain add-certificates
+      - name: Set up code signing settings on Xcode project
+        script: xcode-project use-profiles
       - name: Build Pro Edition
         script: |
           xcode-project build-ipa --project "CruxParans.xcodeproj" --scheme "CruxParansPro"
