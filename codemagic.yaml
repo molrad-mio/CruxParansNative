@@ -5,9 +5,6 @@ workflows:
     integrations:
       app_store_connect: Codemagic
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.alpheratzlab.cruxparanspro
       vars:
         BUILD_TYPE: "TEST"
     scripts:
