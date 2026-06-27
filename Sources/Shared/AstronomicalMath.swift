@@ -201,6 +201,29 @@ public class AstronomicalMath {
                 }
             }
         }
+        let planetOrder: [String: Int] = [
+            "Sun": 0, "Moon": 1, "Mercury": 2, "Venus": 3, 
+            "Mars": 4, "Jupiter": 5, "Saturn": 6
+        ]
+        
+        pParans.sort {
+            let order0 = planetOrder[$0.0] ?? 99
+            let order1 = planetOrder[$1.0] ?? 99
+            if order0 != order1 {
+                return order0 < order1
+            }
+            return $0.4 < $1.4 // orbStr
+        }
+        
+        let axisOrder: [String: Int] = ["ASC": 0, "MC": 1, "DSC": 2, "IC": 3]
+        aParans.sort {
+            let order0 = axisOrder[$0.0] ?? 99
+            let order1 = axisOrder[$1.0] ?? 99
+            if order0 != order1 {
+                return order0 < order1
+            }
+            return $0.2 < $1.2 // orbStr
+        }
         
         return (pParans, aParans)
     }
