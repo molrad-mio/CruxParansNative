@@ -302,11 +302,40 @@ struct ProfileDetailView: View {
             Text(bodyText)
                 .font(.system(size: 16 * textScale, weight: .bold))
             
-            if let existingNote = profile.notes.first(where: { $0.eventID == eventID }), !existingNote.content.isEmpty {
-                Text("✍：\(existingNote.content)")
-                    .font(.system(size: 14 * textScale, weight: .bold))
-                    .padding(.top, 4)
+            // NOTE BLOCK
+            Button(action: {
+                selectedEventID = eventID
+            }) {
+                HStack(alignment: .top, spacing: 6) {
+                    Text("✍")
+                        .font(.system(size: 14 * textScale))
+                        .foregroundColor(deepNavyBlack.opacity(0.7))
+                    
+                    if let existingNote = profile.notes.first(where: { $0.eventID == eventID }), !existingNote.content.isEmpty {
+                        Text(existingNote.content)
+                            .font(.system(size: 14 * textScale, weight: .regular))
+                            .foregroundColor(deepNavyBlack)
+                            .lineLimit(2)
+                            .truncationMode(.tail)
+                            .multilineTextAlignment(.leading)
+                    } else {
+                        Text("Add note...")
+                            .font(.system(size: 14 * textScale, weight: .regular))
+                            .foregroundColor(deepNavyBlack.opacity(0.4))
+                            .italic()
+                    }
+                    Spacer()
+                }
+                .padding(8)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .background(papyrusColor.opacity(0.3))
+                .cornerRadius(6)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(deepNavyBlack.opacity(0.1), lineWidth: 1)
+                )
             }
+            .buttonStyle(PlainButtonStyle())
         }
         .padding(.bottom, 8)
     }
