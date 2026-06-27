@@ -24,11 +24,30 @@ struct ProfileDetailView: View {
     let vintageBrown = Color(red: 139/255, green: 69/255, blue: 19/255) // SaddleBrown for a leather/parchment vibe
 
     private var timelineEvents: [(id: String, type: String, date: String, description: String)] {
+        // Dynamic mock data based on the selected year
+        let offset1 = (targetYear * 3) % 28 + 1
+        let offset2 = (targetYear * 7) % 28 + 1
+        let offset3 = (targetYear * 11) % 28 + 1
+        
         return [
-            ("Event0", "P", "\(String(targetYear)).03.15 08:20", "P-Mars at IC ✕ N-Algol at DSC"),
-            ("Event1", "T", "\(String(targetYear)).06.24 13:31", "T-Jupiter at ASC ✕ N-Spica at MC"),
-            ("Event2", "P", "\(String(targetYear)).10.12 09:15", "P-Sun at MC ✕ N-Regulus at ASC")
+            ("Event0", "P", String(format: "%04d.03.%02d 08:20", targetYear, offset1), "P-Mars at IC ✕ N-Algol at DSC"),
+            ("Event1", "T", String(format: "%04d.06.%02d 13:31", targetYear, offset2), "T-Jupiter at ASC ✕ N-Spica at MC"),
+            ("Event2", "P", String(format: "%04d.10.%02d 09:15", targetYear, offset3), "P-Sun at MC ✕ N-Regulus at ASC")
         ]
+    }
+    
+    private var solarReturnData: (moment: String, stars: [String]) {
+        // Dynamic mock data for Solar Return based on the selected year
+        let baseStars = ["ASC ✕ Regulus", "MC ✕ Spica", "DSC ✕ Sirius", "IC ✕ Altair", "ASC ✕ Fomalhaut", "MC ✕ Antares"]
+        let star1 = baseStars[targetYear % baseStars.count]
+        let star2 = baseStars[(targetYear + 1) % baseStars.count]
+        
+        let minute = String(format: "%02d", (targetYear * 13) % 60)
+        let second = String(format: "%02d", (targetYear * 47) % 60)
+        let orb1 = String(format: "0°%02d'", (targetYear * 3) % 60)
+        let orb2 = String(format: "0°%02d'", (targetYear * 7) % 60)
+        
+        return (moment: "\(String(targetYear)).06.24 13:\(minute):\(second)", stars: ["- \(star1) [Orb: \(orb1)]", "- \(star2) [Orb: \(orb2)]"])
     }
 
     var body: some View {
@@ -145,14 +164,14 @@ struct ProfileDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("[ \(String(targetYear)) SOLAR RETURN STARS ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
-                        Text("Exact Moment: \(String(targetYear)).06.24 13:31:05")
-
+                        Text("Exact Moment: \(solarReturnData.moment)")
                             .font(.system(size: 14 * textScale, weight: .bold))
                             .foregroundColor(deepNavyBlack.opacity(0.7))
-                        Text("- ASC ✕ Regulus [Orb: 0°12']")
-                            .font(.system(size: 16 * textScale, weight: .bold))
-                        Text("- MC ✕ Spica [Orb: 0°34']")
-                            .font(.system(size: 16 * textScale, weight: .bold))
+                        
+                        ForEach(solarReturnData.stars, id: \.self) { star in
+                            Text(star)
+                                .font(.system(size: 16 * textScale, weight: .bold))
+                        }
                     }
                     
                     // TRIPLE-LAYER TIMELINE
