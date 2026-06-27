@@ -17,6 +17,15 @@ struct ProfileDetailView: View {
     @State private var showPastEvents: Bool = false
     @State private var targetYear: Int = 2026
     
+    // Solar Return State
+    @State private var solarReturnMomentString: String = "Calculating..."
+    @State private var solarReturnParans: [String] = []
+    
+    // Relocation State
+    @State private var showRelocationSheet: Bool = false
+    @State private var isCalculatingRelocation: Bool = false
+    @State private var luckyDestinations: [(city: String, results: [String])] = []
+    
     // Medical Grade Colors & Vintage Accents
     let paperWhite = Color(red: 245/255, green: 245/255, blue: 220/255)
     let papyrusColor = Color(red: 232/255, green: 220/255, blue: 196/255)
@@ -30,24 +39,10 @@ struct ProfileDetailView: View {
         let offset3 = (targetYear * 11) % 28 + 1
         
         return [
-            ("Event0", "P", String(format: "%04d.03.%02d 08:20", targetYear, offset1), "P-Mars at IC ✕ N-Algol at DSC"),
-            ("Event1", "T", String(format: "%04d.06.%02d 13:31", targetYear, offset2), "T-Jupiter at ASC ✕ N-Spica at MC"),
-            ("Event2", "P", String(format: "%04d.10.%02d 09:15", targetYear, offset3), "P-Sun at MC ✕ N-Regulus at ASC")
+            ("Event0", "P", String(format: "%04d.03.%02d 08:20", targetYear, offset1), "P-Mars at IC X N-Algol at DSC"),
+            ("Event1", "T", String(format: "%04d.06.%02d 13:31", targetYear, offset2), "T-Jupiter at ASC X N-Spica at MC"),
+            ("Event2", "P", String(format: "%04d.10.%02d 09:15", targetYear, offset3), "P-Sun at MC X N-Regulus at ASC")
         ]
-    }
-    
-    private var solarReturnData: (moment: String, stars: [String]) {
-        // Dynamic mock data for Solar Return based on the selected year
-        let baseStars = ["ASC ✕ Regulus", "MC ✕ Spica", "DSC ✕ Sirius", "IC ✕ Altair", "ASC ✕ Fomalhaut", "MC ✕ Antares"]
-        let star1 = baseStars[targetYear % baseStars.count]
-        let star2 = baseStars[(targetYear + 1) % baseStars.count]
-        
-        let minute = String(format: "%02d", (targetYear * 13) % 60)
-        let second = String(format: "%02d", (targetYear * 47) % 60)
-        let orb1 = String(format: "0°%02d'", (targetYear * 3) % 60)
-        let orb2 = String(format: "0°%02d'", (targetYear * 7) % 60)
-        
-        return (moment: "\(String(targetYear)).06.24 13:\(minute):\(second)", stars: ["- \(star1) [Orb: \(orb1)]", "- \(star2) [Orb: \(orb2)]"])
     }
 
     var body: some View {
@@ -148,7 +143,10 @@ struct ProfileDetailView: View {
                         
                         Spacer()
                         
-                        Button(action: { targetYear += 1 }) {
+                        Button(action: {
+                            targetYear += 1
+                            calculateSolarReturn()
+                        }) {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 20, weight: .bold))
                                 .padding(.horizontal)
@@ -160,19 +158,6 @@ struct ProfileDetailView: View {
                     .cornerRadius(8)
                     
                     Divider().background(deepNavyBlack)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("[ \(String(targetYear)) SOLAR RETURN STARS ]")
-                            .font(.system(size: 18 * textScale, weight: .bold))
-                        Text("Exact Moment: \(solarReturnData.moment)")
-                            .font(.system(size: 14 * textScale, weight: .bold))
-                            .foregroundColor(deepNavyBlack.opacity(0.7))
-                        
-                        ForEach(solarReturnData.stars, id: \.self) { star in
-                            Text(star)
-                                .font(.system(size: 16 * textScale, weight: .bold))
-                        }
-                    }
                     
                     // TRIPLE-LAYER TIMELINE
                     VStack(alignment: .leading, spacing: 16) {
@@ -295,6 +280,7 @@ struct ProfileDetailView: View {
         .toolbarBackground(.visible, for: .navigationBar)
         .onAppear {
             calculateParans()
+            calculateSolarReturn()
         }
         .sheet(isPresented: Binding(
             get: { selectedEventID != nil },
@@ -302,6 +288,136 @@ struct ProfileDetailView: View {
         )) {
             if let eventID = selectedEventID {
                 NoteEditorSheet(profile: profile, eventID: eventID)
+            }
+        }
+        .sheet(isPresented: $showRelocationSheet) {
+            NavigationView {
+                VStack(spacing: 0) {
+                    // Header Image or Banner Space
+                    Rectangle()
+                        .fill(deepNavyBlack)
+                        .frame(height: 60)
+                        .overlay(
+                            HStack {
+                                Image(systemName: "airplane.circle.fill")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(papyrusColor)
+                                Text("LUCKY DESTINATIONS")
+                                    .font(.system(size: 20, weight: .heavy))
+                                    .foregroundColor(paperWhite)
+                            }
+                        )
+                    
+                    if isCalculatingRelocation {
+                        VStack(spacing: 20) {
+                            ProgressView()
+                                .scaleEffect(1.5)
+                            Text("Scanning the globe for perfect planetary alignments...\nThis may take a moment.")
+                                .multilineTextAlignment(.center)
+                                .font(.system(size: 14))
+                                .foregroundColor(deepNavyBlack)
+                        }
+                        .padding(40)
+                        Spacer()
+                    } else if luckyDestinations.isEmpty {
+                        VStack(spacing: 20) {
+                            Text("No major conjunctions found for this year.")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(deepNavyBlack)
+                            Text("The stars remain quiet.")
+                                .font(.system(size: 14))
+                                .foregroundColor(.gray)
+                        }
+                        .padding(40)
+                        Spacer()
+                    } else {
+                        List(luckyDestinations, id: \.city) { dest in
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Image(systemName: "mappin.and.ellipse")
+                                        .foregroundColor(vintageBrown)
+                                    Text(dest.city)
+                                        .font(.system(size: 18, weight: .heavy))
+                                        .foregroundColor(deepNavyBlack)
+                                }
+                                ForEach(dest.results, id: \.self) { result in
+                                    Text("✦ \(result)")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(deepNavyBlack.opacity(0.8))
+                                        .padding(.leading, 24)
+                                }
+                            }
+                            .padding(.vertical, 8)
+                            .listRowBackground(papyrusColor.opacity(0.2))
+                        }
+                        .listStyle(PlainListStyle())
+                    }
+                }
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Close") {
+                            showRelocationSheet = false
+                        }
+                        .foregroundColor(deepNavyBlack)
+                        .font(.system(size: 16, weight: .bold))
+                    }
+                }
+            }
+        }
+    }
+    
+    private func calculateSolarReturn() {
+        self.solarReturnMomentString = "Calculating..."
+        self.solarReturnParans = []
+        
+        Task {
+            let birthDate = profile.dateOfBirth
+            let calendar = Calendar.current
+            let natalMonth = Int32(calendar.component(.month, from: birthDate))
+            let natalDay = Int32(calendar.component(.day, from: birthDate))
+            
+            let jdNatal = AstronomicalMath.shared.julianDay(from: birthDate)
+            
+            // Using exact moment calculation
+            let exactJD = SwephWrapper.shared.calculateSolarReturn(natalJulianDay: jdNatal, targetYear: Int32(targetYear), natalMonth: natalMonth, natalDay: natalDay)
+            
+            // Format Exact Moment
+            let secondsSince1970 = (exactJD - 2440587.5) * 86400.0
+            let exactDate = Date(timeIntervalSince1970: secondsSince1970)
+            let df = DateFormatter()
+            df.dateFormat = "yyyy.MM.dd HH:mm:ss 'UTC'"
+            df.timeZone = TimeZone(identifier: "UTC")
+            let exactStr = df.string(from: exactDate)
+            
+            // Calculate Stars for standard Birthplace (Natal Location)
+            let stars = AstronomicalMath.shared.calculateSolarReturnStars(exactJD: exactJD, latitude: profile.latitude, longitude: profile.longitude, stars: FixedStarsData.proStars)
+            
+            await MainActor.run {
+                self.solarReturnMomentString = exactStr
+                self.solarReturnParans = stars.isEmpty ? ["- No Exact Conjunctions"] : stars.map { "- \($0)" }
+            }
+        }
+    }
+    
+    private func calculateRelocation() {
+        self.isCalculatingRelocation = true
+        self.luckyDestinations = []
+        
+        Task {
+            let birthDate = profile.dateOfBirth
+            let calendar = Calendar.current
+            let natalMonth = Int32(calendar.component(.month, from: birthDate))
+            let natalDay = Int32(calendar.component(.day, from: birthDate))
+            let jdNatal = AstronomicalMath.shared.julianDay(from: birthDate)
+            
+            let exactJD = SwephWrapper.shared.calculateSolarReturn(natalJulianDay: jdNatal, targetYear: Int32(targetYear), natalMonth: natalMonth, natalDay: natalDay)
+            
+            let dest = AstronomicalMath.shared.scanLuckyDestinations(exactJD: exactJD, stars: FixedStarsData.proStars)
+            
+            await MainActor.run {
+                self.luckyDestinations = dest.map { (city: $0.city.displayName, results: $0.results) }
+                self.isCalculatingRelocation = false
             }
         }
     }

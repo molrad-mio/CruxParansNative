@@ -227,6 +227,67 @@ public class AstronomicalMath {
         
         return (pParans, aParans)
     }
+
+    // MARK: - Solar Return Stars (Exact Moment Conjunctions)
+    /// Calculates the stars that conjunct the ASC/MC exactly at the moment of the Solar Return.
+    /// This strictly follows Brady's definition of conjunction (Orb < 1 degree) at the exact return moment.
+    public func calculateSolarReturnStars(exactJD: Double, latitude: Double, longitude: Double, stars: [FixedStar]) -> [String] {
+        let gstHours = SwephWrapper.shared.getGreenwichSiderealTime(julianDay: exactJD)
+        let gstDegrees = gstHours * 15.0
+        let lstDegrees = (gstDegrees + longitude).normalizedDegrees()
+        
+        let mcRA = lstDegrees
+        let icRA = (mcRA + 180.0).normalizedDegrees()
+        
+        var results: [String] = []
+        let orb = 1.0
+        
+        for star in stars {
+            // MC & IC Conjunction
+            let mcDiff = min(abs(mcRA - star.rightAscension), 360.0 - abs(mcRA - star.rightAscension))
+            if mcDiff <= orb {
+                results.append("MC X \(star.name) [Orb: \(String(format: "%.2f", mcDiff))°]")
+            }
+            let icDiff = min(abs(icRA - star.rightAscension), 360.0 - abs(icRA - star.rightAscension))
+            if icDiff <= orb {
+                results.append("IC X \(star.name) [Orb: \(String(format: "%.2f", icDiff))°]")
+            }
+            
+            // ASC & DSC Conjunction
+            if let oaOd = computeOA_OD(ra: star.rightAscension, dec: star.declination, lat: latitude) {
+                let oaDiff = min(abs(lstDegrees - oaOd.oa), 360.0 - abs(lstDegrees - oaOd.oa))
+                if oaDiff <= orb {
+                    results.append("ASC X \(star.name) [Orb: \(String(format: "%.2f", oaDiff))°]")
+                }
+                
+                let odDiff = min(abs(lstDegrees - oaOd.od), 360.0 - abs(lstDegrees - oaOd.od))
+                if odDiff <= orb {
+                    results.append("DSC X \(star.name) [Orb: \(String(format: "%.2f", odDiff))°]")
+                }
+            }
+        }
+        
+        return results
+    }
+
+    // MARK: - Solar Return Relocation Bulk Scanner
+    /// Scans all major world cities to find locations where a major lucky star conjuncts an angle at the exact Solar Return moment.
+    public func scanLuckyDestinations(exactJD: Double, stars: [FixedStar]) -> [(city: WorldCity, results: [String])] {
+        // Filter for major prominent stars to prevent overwhelming the user
+        let luckyStarNames = ["Spica", "Regulus", "Alpheratz", "Sirius", "Vega", "Rigel", "Fomalhaut", "Aldebaran", "Antares", "Pollux", "Capella", "Arcturus", "Procyon", "Betelgeuse", "Rigel", "Formalhaut", "Deneb", "Altair"]
+        let majorStars = stars.filter { luckyStarNames.contains($0.name) }
+        
+        var luckyDestinations: [(WorldCity, [String])] = []
+        
+        for city in WorldCitiesData.cities {
+            let hits = calculateSolarReturnStars(exactJD: exactJD, latitude: city.latitude, longitude: city.longitude, stars: majorStars)
+            if !hits.isEmpty {
+                luckyDestinations.append((city, hits))
+            }
+        }
+        
+        return luckyDestinations
+    }
 }
 
 extension Double {
