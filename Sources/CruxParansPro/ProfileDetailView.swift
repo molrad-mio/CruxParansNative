@@ -15,10 +15,12 @@ struct ProfileDetailView: View {
     
     @State private var selectedEventID: String? = nil
     
-    // Medical Grade Colors
+    // Medical Grade Colors & Vintage Accents
     let paperWhite = Color(red: 245/255, green: 245/255, blue: 220/255)
     let papyrusColor = Color(red: 232/255, green: 220/255, blue: 196/255)
     let deepNavyBlack = Color(red: 10/255, green: 17/255, blue: 40/255)
+    let vintageBrown = Color(red: 139/255, green: 69/255, blue: 19/255) // SaddleBrown for a leather/parchment vibe
+
 
     var body: some View {
         let bgColor = isPapyrusMode ? papyrusColor : paperWhite
@@ -174,15 +176,23 @@ struct ProfileDetailView: View {
                         ShareLink(item: csvURL) {
                             HStack {
                                 Spacer()
-                                Image(systemName: "doc.text.fill")
-                                Text("EXPORT CLIENT DATA (.CSV)")
-                                    .fontWeight(.bold)
+                                Image(systemName: "scroll.fill") // Vintage scroll icon
+                                    .font(.system(size: 20))
+                                Text("EXPORT PARANS SCROLL (.CSV)")
+                                    .font(.custom("Papyrus", size: 18).weight(.bold))
                                 Spacer()
                             }
-                            .padding()
-                            .background(deepNavyBlack)
-                            .foregroundColor(paperWhite)
-                            .cornerRadius(8)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(vintageBrown)
+                                    .shadow(color: deepNavyBlack.opacity(0.3), radius: 4, x: 0, y: 2)
+                            )
+                            .foregroundColor(papyrusColor)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(papyrusColor.opacity(0.5), lineWidth: 1)
+                            )
                         }
                     }
                     
