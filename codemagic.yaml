@@ -16,6 +16,41 @@ workflows:
           xcodegen generate
       - name: Set up keychain
         script: keychain initialize
+      - name: Assassinate Invisible Cloud Managed Certificates
+        script: |
+          cat << 'EOF' > nuke.rb
+          require 'spaceship'
+          require 'base64'
+          
+          key_var = ENV['APP_STORE_CONNECT_PRIVATE_KEY']
+          if File.exist?(key_var)
+            key_content = File.read(key_var)
+          else
+            key_content = key_var
+          end
+          
+          if !key_content.include?('BEGIN')
+            key_content = Base64.decode64(key_content)
+          end
+          
+          token = Spaceship::ConnectAPI::Token.create(
+            key_id: ENV['APP_STORE_CONNECT_KEY_IDENTIFIER'],
+            issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
+            key: key_content
+          )
+          Spaceship::ConnectAPI.token = token
+          
+          certs = Spaceship::ConnectAPI::Certificate.all
+          puts "Found #{certs.length} certificates via API."
+          certs.each do |c|
+            if c.certificate_type.include?('DISTRIBUTION')
+              puts "Assassinating invisible certificate: #{c.id} (#{c.certificate_type})"
+              c.delete!
+            end
+          end
+          puts "Assassination complete. The API is now completely empty."
+          EOF
+          ruby nuke.rb
       - name: Fetch signing files from Apple
         script: |
           set -e
