@@ -190,28 +190,59 @@ struct ProfileDetailView: View {
                     
                     Divider().background(deepNavyBlack).padding(.vertical, 10)
                     
-                    // EXPORT CSV BUTTON
+                    // EXPORT PDF BUTTON (CLIENT GIFT)
+                    if #available(iOS 16.0, *) {
+                        if let pdfURL = PDFExporter.generatePDF(
+                            profile: profile,
+                            heliacalRising: heliacalRisingStar,
+                            heliacalSetting: heliacalSettingStar,
+                            planetParans: planetParans,
+                            axisParans: axisParans,
+                            timelineEvents: timelineEvents,
+                            targetYear: targetYear
+                        ) {
+                            ShareLink(item: pdfURL) {
+                                HStack {
+                                    Spacer()
+                                    Image(systemName: "scroll.fill") // Vintage scroll icon
+                                        .font(.system(size: 20))
+                                    Text("EXPORT CLIENT GIFT (.PDF)")
+                                        .font(.custom("Papyrus", size: 18).weight(.bold))
+                                    Spacer()
+                                }
+                                .padding(.vertical, 16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(papyrusColor)
+                                        .shadow(color: deepNavyBlack.opacity(0.3), radius: 4, x: 0, y: 2)
+                                )
+                                .foregroundColor(vintageBrown)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(vintageBrown.opacity(0.8), lineWidth: 2)
+                                )
+                            }
+                        }
+                    }
+                    
+                    // EXPORT CSV BUTTON (ASTROLOGER DATA)
                     if let csvURL = CSVExporter.generateCSV(profile: profile, heliacalRising: heliacalRisingStar, heliacalSetting: heliacalSettingStar, planetParans: planetParans, axisParans: axisParans, timelineEvents: timelineEvents) {
                         ShareLink(item: csvURL) {
                             HStack {
                                 Spacer()
-                                Image(systemName: "scroll.fill") // Vintage scroll icon
-                                    .font(.system(size: 20))
-                                Text("EXPORT PARANS SCROLL (.CSV)")
-                                    .font(.custom("Papyrus", size: 18).weight(.bold))
+                                Image(systemName: "tablecells.fill") 
+                                    .font(.system(size: 18))
+                                Text("EXPORT ASTROLOGER DATA (.CSV)")
+                                    .font(.system(size: 16, weight: .bold))
                                 Spacer()
                             }
                             .padding(.vertical, 16)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(vintageBrown)
+                                    .fill(deepNavyBlack)
                                     .shadow(color: deepNavyBlack.opacity(0.3), radius: 4, x: 0, y: 2)
                             )
-                            .foregroundColor(papyrusColor)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(papyrusColor.opacity(0.5), lineWidth: 1)
-                            )
+                            .foregroundColor(paperWhite)
                         }
                     }
                     
