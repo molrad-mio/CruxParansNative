@@ -45,9 +45,29 @@ struct ProfileDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("[ 2. PLANET X STAR PARANS ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
-                        ForEach(Array(planetParans.enumerated()), id: \.offset) { index, paran in
-                            Text("- \(paran.planet) (\(paran.angle1)) ✕ \(paran.star) (\(paran.angle2)) [Orb: \(paran.orb)]")
-                                .font(.system(size: 16 * textScale, weight: .bold))
+                            
+                        let groupedPlanets = Dictionary(grouping: planetParans, by: { $0.planet })
+                        let sortedPlanets = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"].filter { groupedPlanets.keys.contains($0) }
+                        
+                        ForEach(Array(sortedPlanets.enumerated()), id: \.offset) { index, planet in
+                            if index > 0 {
+                                Divider().background(deepNavyBlack.opacity(0.3)).padding(.vertical, 4)
+                            }
+                            
+                            if let paransForPlanet = groupedPlanets[planet] {
+                                ForEach(Array(paransForPlanet.enumerated()), id: \.offset) { pIndex, paran in
+                                    HStack(alignment: .top, spacing: 4) {
+                                        Text("-")
+                                            .font(.system(size: 16 * textScale, weight: .bold))
+                                        
+                                        Text("\(paran.planet)")
+                                            .font(.system(size: 16 * textScale, weight: .heavy))
+                                        
+                                        Text("(\(paran.angle1)) ✕ \(paran.star) (\(paran.angle2)) [Orb: \(paran.orb)]")
+                                            .font(.system(size: 16 * textScale, weight: .regular))
+                                    }
+                                }
+                            }
                         }
                     }
                     
@@ -55,9 +75,29 @@ struct ProfileDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("[ 3. AXIS X STAR PARANS ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
-                        ForEach(Array(axisParans.enumerated()), id: \.offset) { index, paran in
-                            Text("- \(paran.axis) ✕ \(paran.star) [Orb: \(paran.orb)]")
-                                .font(.system(size: 16 * textScale, weight: .bold))
+                            
+                        let groupedAxes = Dictionary(grouping: axisParans, by: { $0.axis })
+                        let sortedAxes = ["ASC", "MC", "DSC", "IC"].filter { groupedAxes.keys.contains($0) }
+                        
+                        ForEach(Array(sortedAxes.enumerated()), id: \.offset) { index, axis in
+                            if index > 0 {
+                                Divider().background(deepNavyBlack.opacity(0.3)).padding(.vertical, 4)
+                            }
+                            
+                            if let paransForAxis = groupedAxes[axis] {
+                                ForEach(Array(paransForAxis.enumerated()), id: \.offset) { pIndex, paran in
+                                    HStack(alignment: .top, spacing: 4) {
+                                        Text("-")
+                                            .font(.system(size: 16 * textScale, weight: .bold))
+                                        
+                                        Text("\(paran.axis)")
+                                            .font(.system(size: 16 * textScale, weight: .heavy))
+                                        
+                                        Text("✕ \(paran.star) [Orb: \(paran.orb)]")
+                                            .font(.system(size: 16 * textScale, weight: .regular))
+                                    }
+                                }
+                            }
                         }
                     }
                     
