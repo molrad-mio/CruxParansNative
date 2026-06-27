@@ -184,7 +184,11 @@ struct ProfileDetailView: View {
             self.heliacalRisingStar = "N/A"
         }
         
-        self.heliacalSettingStar = "N/A" // Simplified for now
+        if let setting = math.calculateHeliacalSettingStar(for: profile.dateOfBirth, latitude: profile.latitude, stars: FixedStarsData.proStars) {
+            self.heliacalSettingStar = setting.name
+        } else {
+            self.heliacalSettingStar = "N/A"
+        }
         
         let allParans = math.calculateAllParans(
             date: profile.dateOfBirth, 

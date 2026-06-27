@@ -92,6 +92,41 @@ public class AstronomicalMath {
         return bestStar
     }
 
+    // MARK: - Heliacal Setting Star
+    /// Finds the star that sets just before the Sun rises (Cosmic Setting).
+    public func calculateHeliacalSettingStar(for date: Date, latitude: Double, stars: [FixedStar]) -> FixedStar? {
+        let sunPos = sunPosition(for: date)
+        guard let sunOA_OD = computeOA_OD(ra: sunPos.ra, dec: sunPos.dec, lat: latitude) else {
+            return nil
+        }
+        
+        // Dawn is when the Sun is rising (Sun's Oblique Ascension)
+        let sunOA = sunOA_OD.oa
+        
+        var bestStar: FixedStar? = nil
+        var minDiff = Double.greatestFiniteMagnitude
+        
+        for star in stars {
+            guard let starOA_OD = computeOA_OD(ra: star.rightAscension, dec: star.declination, lat: latitude) else {
+                continue // Skip circumpolar stars
+            }
+            
+            // The star must set (OD) BEFORE the sun rises (OA).
+            let starOD = starOA_OD.od
+            
+            var diff = sunOA - starOD
+            if diff < 0 { diff += 360.0 }
+            
+            // We want the star with the smallest positive difference
+            if diff < minDiff {
+                minDiff = diff
+                bestStar = star
+            }
+        }
+        
+        return bestStar
+    }
+
     // MARK: - Full Parans Calculation (True Engine)
     /// Calculates all valid Parans (Planet-Star and Axis-Star) for a given birth moment.
     public func calculateAllParans(date: Date, latitude: Double, longitude: Double, stars: [FixedStar]) 
