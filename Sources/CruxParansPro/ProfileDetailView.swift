@@ -128,7 +128,50 @@ struct ProfileDetailView: View {
                     
                     Divider().background(deepNavyBlack)
                     
-                    // SOLAR RETURN & TIMELINE YEAR SELECTOR
+                    // SOLAR RETURN STARS
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("SOLAR RETURN STARS")
+                                .font(.system(size: 14 * textScale, weight: .bold))
+                                .foregroundColor(deepNavyBlack)
+                            Spacer()
+                            Text(solarReturnMomentString)
+                                .font(.system(size: 14 * textScale, weight: .bold))
+                                .foregroundColor(deepNavyBlack.opacity(0.7))
+                        }
+                        
+                        ForEach(solarReturnParans, id: \.self) { star in
+                            Text(star)
+                                .font(.system(size: 16 * textScale, weight: .medium))
+                                .foregroundColor(deepNavyBlack)
+                        }
+                        
+                        // NEW RELOCATION FEATURE BUTTON
+                        Button(action: {
+                            showRelocationSheet = true
+                            calculateRelocation()
+                        }) {
+                            HStack {
+                                Spacer()
+                                Image(systemName: "airplane")
+                                Text("FIND MY LUCKY DESTINATIONS")
+                                Spacer()
+                            }
+                            .font(.system(size: 14 * textScale, weight: .bold))
+                            .foregroundColor(paperWhite)
+                            .padding(.vertical, 12)
+                            .background(deepNavyBlack)
+                            .cornerRadius(8)
+                        }
+                        .padding(.top, 4)
+                    }
+                    .padding()
+                    .background(papyrusColor.opacity(0.3))
+                    .cornerRadius(8)
+                    
+                    Divider().background(deepNavyBlack).padding(.vertical, 8)
+                    
+                    // TIMELINE YEAR SELECTOR
                     HStack {
                         Button(action: { targetYear -= 1 }) {
                             Image(systemName: "chevron.left")
