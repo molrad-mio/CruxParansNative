@@ -45,7 +45,7 @@ struct ProfileDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("[ 2. PLANET X STAR PARANS ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
-                        ForEach(planetParans, id: \.star) { paran in
+                        ForEach(Array(planetParans.enumerated()), id: \.offset) { index, paran in
                             Text("- \(paran.planet) (\(paran.angle1)) ✕ \(paran.star) (\(paran.angle2)) [Orb: \(paran.orb)]")
                                 .font(.system(size: 16 * textScale, weight: .bold))
                         }
@@ -55,7 +55,7 @@ struct ProfileDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("[ 3. AXIS X STAR PARANS ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
-                        ForEach(axisParans, id: \.star) { paran in
+                        ForEach(Array(axisParans.enumerated()), id: \.offset) { index, paran in
                             Text("- \(paran.axis) ✕ \(paran.star) [Orb: \(paran.orb)]")
                                 .font(.system(size: 16 * textScale, weight: .bold))
                         }
