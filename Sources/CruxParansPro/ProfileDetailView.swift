@@ -14,6 +14,7 @@ struct ProfileDetailView: View {
     @State private var axisParans: [(axis: String, star: String, orb: String)] = []
     
     @State private var selectedEventID: String? = nil
+    @State private var showPastEvents: Bool = false
     
     // Medical Grade Colors & Vintage Accents
     let paperWhite = Color(red: 245/255, green: 245/255, blue: 220/255)
@@ -131,41 +132,35 @@ struct ProfileDetailView: View {
                         Text("[ 2026 TRIPLE-LAYER PARANS TIMELINE ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
                         
-                        let events = [
+                        let currentDateStr = "2026.06.27" // Mock today
+                        let allEvents = [
+                            ("Event0", "P", "2026.03.15 08:20", "P-Mars at IC ✕ N-Algol at DSC"),
                             ("Event1", "T", "2026.06.24 13:31", "T-Jupiter at ASC ✕ N-Spica at MC"),
                             ("Event2", "P", "2026.10.12 09:15", "P-Sun at MC ✕ N-Regulus at ASC")
                         ]
                         
-                        ForEach(events, id: \.0) { eventID, type, dateStr, bodyText in
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack(alignment: .center, spacing: 8) {
-                                    Text(type)
-                                        .font(.system(size: 14 * textScale, weight: .heavy))
-                                        .foregroundColor(paperWhite)
-                                        .frame(width: 24, height: 24)
-                                        .background(type == "T" ? Color.red : Color.blue)
-                                        .cornerRadius(4)
-                                        
-                                    Text(dateStr)
-                                        .font(.system(size: 16 * textScale, weight: .bold))
-                                        
-                                    Spacer()
-                                    Button("[ ✎ ]") {
-                                        selectedEventID = eventID
-                                    }
-                                    .font(.system(size: 16 * textScale, weight: .bold))
-                                    .foregroundColor(deepNavyBlack)
+                        let pastEvents = allEvents.filter { $0.2 < currentDateStr }
+                        let futureEvents = allEvents.filter { $0.2 >= currentDateStr }
+                        
+                        // PAST EVENTS ACCORDION
+                        if !pastEvents.isEmpty {
+                            DisclosureGroup(isExpanded: $showPastEvents) {
+                                ForEach(pastEvents, id: \.0) { eventID, type, dateStr, bodyText in
+                                    timelineEventRow(eventID: eventID, type: type, dateStr: dateStr, bodyText: bodyText)
+                                        .padding(.top, 8)
                                 }
-                                Text(bodyText)
+                            } label: {
+                                Text("▶ View Past Events (\(pastEvents.count))")
                                     .font(.system(size: 16 * textScale, weight: .bold))
-                                
-                                if let existingNote = profile.notes.first(where: { $0.eventID == eventID }), !existingNote.content.isEmpty {
-                                    Text("✍：\(existingNote.content)")
-                                        .font(.system(size: 14 * textScale, weight: .bold))
-                                        .padding(.top, 4)
-                                }
+                                    .foregroundColor(deepNavyBlack.opacity(0.7))
                             }
+                            .accentColor(deepNavyBlack)
                             .padding(.bottom, 8)
+                        }
+                        
+                        // FUTURE EVENTS
+                        ForEach(futureEvents, id: \.0) { eventID, type, dateStr, bodyText in
+                            timelineEventRow(eventID: eventID, type: type, dateStr: dateStr, bodyText: bodyText)
                         }
                     }
                     
@@ -260,5 +255,38 @@ struct ProfileDetailView: View {
         
         self.planetParans = allParans.planetParans
         self.axisParans = allParans.axisParans
+    }
+    
+    @ViewBuilder
+    private func timelineEventRow(eventID: String, type: String, dateStr: String, bodyText: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .center, spacing: 8) {
+                Text(type)
+                    .font(.system(size: 14 * textScale, weight: .heavy))
+                    .foregroundColor(paperWhite)
+                    .frame(width: 24, height: 24)
+                    .background(type == "T" ? Color.red : Color.blue)
+                    .cornerRadius(4)
+                    
+                Text(dateStr)
+                    .font(.system(size: 16 * textScale, weight: .bold))
+                    
+                Spacer()
+                Button("[ ✎ ]") {
+                    selectedEventID = eventID
+                }
+                .font(.system(size: 16 * textScale, weight: .bold))
+                .foregroundColor(deepNavyBlack)
+            }
+            Text(bodyText)
+                .font(.system(size: 16 * textScale, weight: .bold))
+            
+            if let existingNote = profile.notes.first(where: { $0.eventID == eventID }), !existingNote.content.isEmpty {
+                Text("✍：\(existingNote.content)")
+                    .font(.system(size: 14 * textScale, weight: .bold))
+                    .padding(.top, 4)
+            }
+        }
+        .padding(.bottom, 8)
     }
 }
