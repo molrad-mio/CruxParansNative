@@ -130,15 +130,23 @@ struct ProfileDetailView: View {
                             .font(.system(size: 18 * textScale, weight: .bold))
                         
                         let events = [
-                            ("Event1", "🔴【T✕N】 2026.06.24 13:31", "T-Jupiter at ASC ✕ N-Spica at MC"),
-                            ("Event2", "🔵【P✕N】 2026.10.12 09:15", "P-Sun at MC ✕ N-Regulus at ASC")
+                            ("Event1", "T", "2026.06.24 13:31", "T-Jupiter at ASC ✕ N-Spica at MC"),
+                            ("Event2", "P", "2026.10.12 09:15", "P-Sun at MC ✕ N-Regulus at ASC")
                         ]
                         
-                        ForEach(events, id: \.0) { eventID, header, bodyText in
+                        ForEach(events, id: \.0) { eventID, type, dateStr, bodyText in
                             VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Text(header)
+                                HStack(alignment: .center, spacing: 8) {
+                                    Text(type)
+                                        .font(.system(size: 14 * textScale, weight: .heavy))
+                                        .foregroundColor(paperWhite)
+                                        .frame(width: 24, height: 24)
+                                        .background(type == "T" ? Color.red : Color.blue)
+                                        .cornerRadius(4)
+                                        
+                                    Text(dateStr)
                                         .font(.system(size: 16 * textScale, weight: .bold))
+                                        
                                     Spacer()
                                     Button("[ ✎ ]") {
                                         selectedEventID = eventID
