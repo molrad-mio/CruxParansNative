@@ -115,9 +115,9 @@ struct ProfileDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("[ 2026 SOLAR RETURN STARS ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
-                        Text("- ASC X Regulus")
+                        Text("- ASC ✕ Regulus [Orb: 0°12']")
                             .font(.system(size: 16 * textScale, weight: .bold))
-                        Text("- MC X Spica")
+                        Text("- MC ✕ Spica [Orb: 0°34']")
                             .font(.system(size: 16 * textScale, weight: .bold))
                     }
                     
