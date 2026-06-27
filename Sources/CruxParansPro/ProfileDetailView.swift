@@ -15,6 +15,7 @@ struct ProfileDetailView: View {
     
     @State private var selectedEventID: String? = nil
     @State private var showPastEvents: Bool = false
+    @State private var targetYear: Int = 2026
     
     // Medical Grade Colors & Vintage Accents
     let paperWhite = Color(red: 245/255, green: 245/255, blue: 220/255)
@@ -106,19 +107,39 @@ struct ProfileDetailView: View {
                     
                     Divider().background(deepNavyBlack)
                     
-                    // SOLAR RETURN
-                    VStack(alignment: .center, spacing: 8) {
-                        Text("[ 🔍 ENTER YEAR: 2026 ]")
+                    // SOLAR RETURN & TIMELINE YEAR SELECTOR
+                    HStack {
+                        Button(action: { targetYear -= 1 }) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 20, weight: .bold))
+                                .padding(.horizontal)
+                        }
+                        
+                        Spacer()
+                        
+                        Text("[ 🔍 YEAR: \(String(targetYear)) ]")
                             .font(.system(size: 20 * textScale, weight: .bold))
-                            .frame(maxWidth: .infinity)
+                        
+                        Spacer()
+                        
+                        Button(action: { targetYear += 1 }) {
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 20, weight: .bold))
+                                .padding(.horizontal)
+                        }
                     }
+                    .padding(.vertical, 8)
+                    .foregroundColor(deepNavyBlack)
+                    .background(papyrusColor.opacity(0.3))
+                    .cornerRadius(8)
                     
                     Divider().background(deepNavyBlack)
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("[ 2026 SOLAR RETURN STARS ]")
+                        Text("[ \(String(targetYear)) SOLAR RETURN STARS ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
-                        Text("Exact Moment: 2026.06.24 13:31:05")
+                        Text("Exact Moment: \(String(targetYear)).06.24 13:31:05")
+
                             .font(.system(size: 14 * textScale, weight: .bold))
                             .foregroundColor(deepNavyBlack.opacity(0.7))
                         Text("- ASC ✕ Regulus [Orb: 0°12']")
@@ -129,14 +150,14 @@ struct ProfileDetailView: View {
                     
                     // TRIPLE-LAYER TIMELINE
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("[ 2026 TRIPLE-LAYER PARANS TIMELINE ]")
+                        Text("[ \(String(targetYear)) TRIPLE-LAYER PARANS TIMELINE ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
                         
                         let currentDateStr = "2026.06.27" // Mock today
                         let allEvents = [
-                            ("Event0", "P", "2026.03.15 08:20", "P-Mars at IC ✕ N-Algol at DSC"),
-                            ("Event1", "T", "2026.06.24 13:31", "T-Jupiter at ASC ✕ N-Spica at MC"),
-                            ("Event2", "P", "2026.10.12 09:15", "P-Sun at MC ✕ N-Regulus at ASC")
+                            ("Event0", "P", "\(String(targetYear)).03.15 08:20", "P-Mars at IC ✕ N-Algol at DSC"),
+                            ("Event1", "T", "\(String(targetYear)).06.24 13:31", "T-Jupiter at ASC ✕ N-Spica at MC"),
+                            ("Event2", "P", "\(String(targetYear)).10.12 09:15", "P-Sun at MC ✕ N-Regulus at ASC")
                         ]
                         
                         let pastEvents = allEvents.filter { $0.2 < currentDateStr }
