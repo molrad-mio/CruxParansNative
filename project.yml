@@ -45,7 +45,7 @@ targets:
       - path: Sources/Shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.alpheratzlab.cruxparans
+        PRODUCT_BUNDLE_IDENTIFIER: com.molrad.crux
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
