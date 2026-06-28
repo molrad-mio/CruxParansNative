@@ -67,7 +67,7 @@ struct ResultView: View {
                     .shareSheet(
                         isPresented: $showShareSheet, 
                         items: [
-                            "I am locked by 【\(guildStar.name)】 - \(guildStar.title).\n\n\(guildStar.flavorText)\n\n#CruxGuild #\(guildStar.name == "None" ? "Voidborn" : "Starbound")"
+                            "I am locked by 【\(guildStar.name)】 - \(guildStar.title).\n\n\(guildStar.flavorText)\n\n#CruxGuild #\(guildStar.name == "None" ? "Voidborn" : guildStar.name.replacingOccurrences(of: " ", with: "")) #ThyFateBeBlessed"
                         ]
                     )
                     
