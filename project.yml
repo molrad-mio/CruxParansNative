@@ -36,16 +36,16 @@ targets:
       - package: Firebase
         product: FirebaseCrashlytics
 
-  CruxParansLight:
+  CruxParans:
     type: application
     platform: iOS
     deploymentTarget: "17.0"
     sources:
-      - path: Sources/CruxParansLight
+      - path: Sources/CruxParans
       - path: Sources/Shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.alpheratzlab.cruxparanslight
+        PRODUCT_BUNDLE_IDENTIFIER: com.alpheratzlab.cruxparans
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
