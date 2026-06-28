@@ -1,6 +1,6 @@
 workflows:
-  ios-native-release:
-    name: iOS Native Release Build
+  ios-native-pro-release:
+    name: iOS Native PRO Release
     instance_type: mac_mini_m1
     integrations:
       app_store_connect: Codemagic
@@ -26,6 +26,40 @@ workflows:
       - name: Build Pro Edition
         script: |
           xcode-project build-ipa --project "CruxParans.xcodeproj" --scheme "CruxParansPro"
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
+  ios-native-btoc-release:
+    name: iOS Native BtoC (Free) Release
+    instance_type: mac_mini_m1
+    integrations:
+      app_store_connect: Codemagic
+    environment:
+      ios_signing:
+        provisioning_profiles:
+          - CruxParans_Profile
+        certificates:
+          - CruxParans_Dist
+      vars:
+        BUILD_TYPE: "TEST"
+    scripts:
+      - name: Install XcodeGen
+        script: |
+          brew install xcodegen
+      - name: Generate Xcode Project
+        script: |
+          xcodegen generate
+      - name: Set up signing certificate
+        script: keychain add-certificates
+      - name: Set up code signing settings on Xcode project
+        script: xcode-project use-profiles
+      - name: Build BtoC Edition
+        script: |
+          xcode-project build-ipa --project "CruxParans.xcodeproj" --scheme "CruxParans"
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
