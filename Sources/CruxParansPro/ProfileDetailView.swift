@@ -33,6 +33,11 @@ struct ProfileDetailView: View {
     @State private var isCalculatingRelocation: Bool = false
     @State private var luckyDestinations: [(city: String, results: [String])] = []
     
+    // Custom Relocation State
+    @State private var customLat: String = ""
+    @State private var customLon: String = ""
+    @State private var customCityName: String = "Custom Target"
+    
     // Medical Grade Colors & Vintage Accents
     let paperWhite = Color(red: 245/255, green: 245/255, blue: 220/255)
     let papyrusColor = Color(red: 232/255, green: 220/255, blue: 196/255)
@@ -391,6 +396,40 @@ struct ProfileDetailView: View {
                             }
                         )
                     
+                    // CUSTOM LOCATION INPUT
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "plus.app.fill")
+                                .foregroundColor(vintageBrown)
+                            Text("Add Custom Location (Lat/Lon)")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(deepNavyBlack)
+                        }
+                        
+                        HStack {
+                            TextField("Name (e.g. Hawaii)", text: $customCityName)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            TextField("Lat (e.g. 21.3)", text: $customLat)
+                                .keyboardType(.numbersAndPunctuation)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .frame(width: 80)
+                            TextField("Lon (e.g. -157.8)", text: $customLon)
+                                .keyboardType(.numbersAndPunctuation)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .frame(width: 80)
+                            
+                            Button(action: {
+                                addCustomLocation()
+                            }) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.system(size: 28))
+                                    .foregroundColor(vintageBrown)
+                            }
+                        }
+                    }
+                    .padding()
+                    .background(papyrusColor.opacity(0.4))
+                    
                     if isCalculatingRelocation {
                         VStack(spacing: 20) {
                             ProgressView()
@@ -616,5 +655,31 @@ struct ProfileDetailView: View {
             .buttonStyle(PlainButtonStyle())
         }
         .padding(.bottom, 8)
+    }
+    
+    private func addCustomLocation() {
+        guard let lat = Double(customLat), let lon = Double(customLon) else { return }
+        
+        let birthDate = profile.dateOfBirth
+        let calendar = Calendar.current
+        let natalMonth = Int32(calendar.component(.month, from: birthDate))
+        let natalDay = Int32(calendar.component(.day, from: birthDate))
+        let jdNatal = AstronomicalMath.shared.julianDay(from: birthDate)
+        
+        let exactJD = SwephWrapper.shared.calculateSolarReturn(natalJulianDay: jdNatal, targetYear: Int32(targetYear), natalMonth: natalMonth, natalDay: natalDay)
+        
+        let stars = AstronomicalMath.shared.calculateSolarReturnStars(exactJD: exactJD, latitude: lat, longitude: lon, stars: FixedStarsData.proStars)
+        
+        let title = customCityName.isEmpty ? "Custom (\(lat), \(lon))" : "\(customCityName) (\(lat), \(lon))"
+        if stars.isEmpty {
+            luckyDestinations.insert((city: title, results: ["- No Exact Conjunctions"]), at: 0)
+        } else {
+            luckyDestinations.insert((city: title, results: stars.map { "- \($0)" }), at: 0)
+        }
+        
+        // Clear inputs after successful addition
+        customLat = ""
+        customLon = ""
+        customCityName = "Custom Target"
     }
 }
