@@ -56,7 +56,7 @@ targets:
         CURRENT_PROJECT_VERSION: 28
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_VERSION: 5.0
-        DEVELOPMENT_TEAM: 7K7A8W84L3
+        DEVELOPMENT_TEAM: GP463A2ZM2
         SWIFT_OBJC_BRIDGING_HEADER: Sources/Shared/Sweph/SwephWrapper-Bridging-Header.h
         HEADER_SEARCH_PATHS: "$(inherited) Sources/Shared/Sweph/src"
     dependencies:
