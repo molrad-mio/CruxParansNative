@@ -1,176 +1,166 @@
 import SwiftUI
-import SwiftData
 import CoreLocation
 
 struct LightContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    
     @State private var dateOfBirth: Date = Date()
-    @State private var city: String = "Tokyo"
-    @State private var latitude: Double = 35.6895
-    
-    @State private var topStar: String = "Galactic Center"
-    @State private var topStarType: String = "None"
+    @State private var timeString: String = "12:00"
+    @State private var latitude: String = "35.6895"
+    @State private var longitude: String = "139.6917"
     
     @State private var isCalculating: Bool = false
+    @State private var resolvedStar: GuildStar? = nil
+    
+    // Gothic Colors
+    let obsidianBlack = Color(red: 10/255, green: 10/255, blue: 15/255)
+    let bloodCrimson = Color(red: 138/255, green: 3/255, blue: 3/255)
+    let oldGold = Color(red: 197/255, green: 179/255, blue: 88/255)
+    let darkGray = Color(white: 0.15)
     
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                obsidianBlack.ignoresSafeArea()
                 
-                VStack(spacing: 20) {
-                    
-                    // Input Section
-                    VStack(alignment: .leading, spacing: 15) {
-                        Text("Discover Your Soul's Star")
-                            .font(.headline)
-                            .foregroundColor(.white)
+                // Background pattern or aura
+                Circle()
+                    .fill(bloodCrimson.opacity(0.1))
+                    .frame(width: 300, height: 300)
+                    .blur(radius: 50)
+                    .offset(y: -150)
+                
+                ScrollView {
+                    VStack(spacing: 30) {
                         
-                        DatePicker("Birth Date", selection: $dateOfBirth, displayedComponents: .date)
-                            .colorScheme(.dark)
+                        Text("Crux Guild")
+                            .font(.custom("Palatino-Bold", size: 40))
+                            .foregroundColor(oldGold)
+                            .shadow(color: oldGold.opacity(0.5), radius: 10, x: 0, y: 0)
+                            .padding(.top, 40)
                         
-                        HStack {
-                            Text("Birth City")
-                                .foregroundColor(.white)
-                            Spacer()
-                            TextField("e.g. Tokyo", text: $city)
-                                .multilineTextAlignment(.trailing)
-                                .foregroundColor(.cyan)
-                        }
-                        
-                        Button(action: calculateMyStar) {
-                            Text("CALCULATE MY STAR")
-                                .font(.headline)
-                                .foregroundColor(.black)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.cyan)
-                                .cornerRadius(10)
-                        }
-                        .disabled(isCalculating)
-                    }
-                    .padding()
-                    .background(Color.gray.opacity(0.2))
-                    .cornerRadius(15)
-                    .padding(.horizontal)
-                    
-                    Spacer()
-                    
-                    // Result Section
-                    VStack(spacing: 15) {
-                        Text("Your Heliacal Rising Star")
-                            .font(.subheadline)
+                        Text("Unveil the star that locked thy soul at the moment of thy first breath.")
+                            .font(.custom("Palatino-Italic", size: 16))
                             .foregroundColor(.gray)
-                            .tracking(2)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
                         
-                        Text(topStar.uppercased())
-                            .font(.system(size: 40, weight: .black, design: .rounded))
-                            .foregroundColor(.white)
-                            .shadow(color: .cyan, radius: 10, x: 0, y: 0)
-                        
-                        Text("TYPE: \(topStarType.uppercased())")
-                            .font(.headline)
-                            .foregroundColor(topStarType == "Royal" ? .yellow : .cyan)
-                    }
-                    
-                    Spacer()
-                    
-                    // Social Share Button
-                    Button(action: shareToInstagram) {
-                        HStack {
-                            Image(systemName: "square.and.arrow.up")
-                            Text("Share to Social Media")
+                        VStack(spacing: 20) {
+                            // Date Input
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Date of Birth")
+                                    .font(.custom("Palatino-Bold", size: 14))
+                                    .foregroundColor(oldGold)
+                                DatePicker("", selection: $dateOfBirth, displayedComponents: .date)
+                                    .labelsHidden()
+                                    .colorScheme(.dark)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            
+                            // Time Input
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Time (HH:mm)")
+                                    .font(.custom("Palatino-Bold", size: 14))
+                                    .foregroundColor(oldGold)
+                                TextField("12:00", text: $timeString)
+                                    .keyboardType(.numbersAndPunctuation)
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .background(darkGray)
+                                    .cornerRadius(8)
+                            }
+                            
+                            // Coordinates Input
+                            HStack(spacing: 15) {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Latitude")
+                                        .font(.custom("Palatino-Bold", size: 14))
+                                        .foregroundColor(oldGold)
+                                    TextField("35.6895", text: $latitude)
+                                        .keyboardType(.numbersAndPunctuation)
+                                        .foregroundColor(.white)
+                                        .padding()
+                                        .background(darkGray)
+                                        .cornerRadius(8)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Longitude")
+                                        .font(.custom("Palatino-Bold", size: 14))
+                                        .foregroundColor(oldGold)
+                                    TextField("139.6917", text: $longitude)
+                                        .keyboardType(.numbersAndPunctuation)
+                                        .foregroundColor(.white)
+                                        .padding()
+                                        .background(darkGray)
+                                        .cornerRadius(8)
+                                }
+                            }
                         }
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
+                        .padding(.horizontal, 30)
+                        .padding(.top, 20)
+                        
+                        Button(action: calculateStar) {
+                            if isCalculating {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: obsidianBlack))
+                            } else {
+                                Text("Reveal Thy Fate")
+                                    .font(.custom("Palatino-Bold", size: 18))
+                            }
+                        }
+                        .foregroundColor(obsidianBlack)
                         .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .cornerRadius(30)
+                        .padding()
+                        .background(oldGold)
+                        .cornerRadius(8)
+                        .padding(.horizontal, 30)
+                        .padding(.top, 20)
+                        .disabled(isCalculating)
+                        
                     }
-                    .padding(.horizontal, 40)
-                    .padding(.bottom, 20)
                 }
             }
-            .navigationTitle("Crux Parans Light")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-        .onAppear {
-            calculateMyStar()
-        }
-    }
-    
-    private func calculateMyStar() {
-        isCalculating = true
-        let geocoder = CLGeocoder()
-        geocoder.geocodeAddressString(city) { placemarks, error in
-            DispatchQueue.main.async {
-                if let location = placemarks?.first?.location {
-                    self.latitude = location.coordinate.latitude
-                }
-                
-                // Set default longitude if not retrieved (for accuracy, Geocoder should really return longitude too)
-                let lon = placemarks?.first?.location?.coordinate.longitude ?? 139.6917 // Tokyo default
-                
-                // Perform Astronomical Math
-                let math = AstronomicalMath.shared
-                let allParans = math.calculateAllParans(
-                    date: dateOfBirth, 
-                    latitude: latitude, 
-                    longitude: lon, 
-                    stars: FixedStarsData.lightStars
-                )
-                
-                // Collect all unique stars that formed at least one paran
-                var paranStars = Set<String>()
-                for p in allParans.planetParans { paranStars.insert(p.2) } // p.2 is starName
-                for a in allParans.axisParans { paranStars.insert(a.1) }   // a.1 is starName
-                
-                if paranStars.isEmpty {
-                    self.topStar = "Galactic Center"
-                    self.topStarType = "None"
-                } else {
-                    let typeRanks: [String: Int] = ["Royal": 4, "Intense": 3, "Crossroad": 2, "Karma": 1]
-                    
-                    // Map star names back to FixedStar objects to check their types
-                    let matchedStarObjects = FixedStarsData.lightStars.filter { paranStars.contains($0.name) }
-                    
-                    // Sort by highest rank first
-                    let sortedStars = matchedStarObjects.sorted { s1, s2 in
-                        let rank1 = typeRanks[s1.type] ?? 0
-                        let rank2 = typeRanks[s2.type] ?? 0
-                        return rank1 > rank2
-                    }
-                    
-                    if let highestStar = sortedStars.first {
-                        self.topStar = highestStar.name
-                        self.topStarType = highestStar.type
-                    } else {
-                        self.topStar = "Galactic Center"
-                        self.topStarType = "None"
-                    }
-                }
-                
-                isCalculating = false
+            .navigationDestination(item: $resolvedStar) { star in
+                ResultView(guildStar: star)
             }
         }
     }
     
-    private func shareToInstagram() {
-        let textToShare = "My soul's fixed star is \(topStar)! Discover yours with Crux Parans Light. #CruxParans #\(topStar.replacingOccurrences(of: " ", with: ""))Tribe"
-        let activityVC = UIActivityViewController(activityItems: [textToShare], applicationActivities: nil)
+    private func calculateStar() {
+        guard let lat = Double(latitude), let lon = Double(longitude) else { return }
         
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first,
-           let rootVC = window.rootViewController {
-            // For iPad compatibility
-            if let popover = activityVC.popoverPresentationController {
-                popover.sourceView = window
-                popover.sourceRect = CGRect(x: window.bounds.midX, y: window.bounds.midY, width: 0, height: 0)
-                popover.permittedArrowDirections = []
+        isCalculating = true
+        
+        // Combine date and time
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        let dateString = formatter.string(from: dateOfBirth).prefix(10) + " " + timeString
+        
+        let finalDate = formatter.date(from: String(dateString)) ?? dateOfBirth
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Find Heliacal Rising Star
+            let math = AstronomicalMath.shared
+            let risingStarOpt = math.calculateHeliacalRisingStar(for: finalDate, latitude: lat, stars: FixedStarsData.proStars)
+            
+            DispatchQueue.main.async {
+                if let risingStarName = risingStarOpt?.name,
+                   let guildStar = GuildStarsData.getGuildStar(forName: risingStarName) {
+                    self.resolvedStar = guildStar
+                } else {
+                    self.resolvedStar = GuildStarsData.noneStar
+                }
+                self.isCalculating = false
             }
-            rootVC.present(activityVC, animated: true, completion: nil)
         }
+    }
+}
+
+extension GuildStar: Identifiable, Hashable {
+    public var id: String { name }
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
+    public static func ==(lhs: GuildStar, rhs: GuildStar) -> Bool {
+        return lhs.name == rhs.name
     }
 }
