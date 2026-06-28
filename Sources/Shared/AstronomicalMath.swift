@@ -127,6 +127,62 @@ public class AstronomicalMath {
         return bestStar
     }
 
+    // MARK: - Lying Hidden Period
+    /// Calculates the period when the star is swallowed by the Sun's glare (Navigational Twilight 12° threshold)
+    public func calculateLyingHiddenPeriod(for star: FixedStar, targetYear: Int, latitude: Double) -> String {
+        guard let starOA_OD = computeOA_OD(ra: star.rightAscension, dec: star.declination, lat: latitude) else {
+            return "Never (Circumpolar)"
+        }
+        
+        let calendar = Calendar.current
+        var settingDate: Date? = nil
+        var risingDate: Date? = nil
+        
+        var bestSetDiff = Double.greatestFiniteMagnitude
+        var bestRiseDiff = Double.greatestFiniteMagnitude
+        
+        // Scan through the year to find exactly when the OA/OD difference is closest to 12.0 degrees
+        for dayOfYear in 1...365 {
+            var components = DateComponents()
+            components.year = targetYear
+            components.month = 1
+            components.day = dayOfYear
+            guard let date = calendar.date(from: components) else { continue }
+            
+            let sunPos = sunPosition(for: date)
+            guard let sunOA_OD = computeOA_OD(ra: sunPos.ra, dec: sunPos.dec, lat: latitude) else { continue }
+            
+            // Heliacal Setting (Lying Hidden Starts): Star sets 12° after Sun
+            var diffSet = starOA_OD.od - sunOA_OD.od
+            if diffSet < -180.0 { diffSet += 360.0 }
+            if diffSet > 180.0 { diffSet -= 360.0 }
+            
+            if abs(diffSet - 12.0) < bestSetDiff {
+                bestSetDiff = abs(diffSet - 12.0)
+                settingDate = date
+            }
+            
+            // Heliacal Rising (Lying Hidden Ends): Star rises 12° before Sun
+            var diffRise = sunOA_OD.oa - starOA_OD.oa
+            if diffRise < -180.0 { diffRise += 360.0 }
+            if diffRise > 180.0 { diffRise -= 360.0 }
+            
+            if abs(diffRise - 12.0) < bestRiseDiff {
+                bestRiseDiff = abs(diffRise - 12.0)
+                risingDate = date
+            }
+        }
+        
+        let df = DateFormatter()
+        df.dateFormat = "MMM d"
+        df.locale = Locale(identifier: "en_US")
+        
+        if let s = settingDate, let r = risingDate {
+            return "Lying Hidden Period: \(df.string(from: s)) - \(df.string(from: r))"
+        }
+        return "Always Visible"
+    }
+
     // MARK: - Full Parans Calculation (True Engine)
     /// Calculates all valid Parans (Planet-Star and Axis-Star) for a given birth moment.
     public func calculateAllParans(date: Date, latitude: Double, longitude: Double, stars: [FixedStar]) 

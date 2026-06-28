@@ -8,7 +8,14 @@ struct ProfileDetailView: View {
     
     // Dynamic Astronomical Data
     @State private var heliacalRisingStar: String = "Calculating..."
+    @State private var natalRisingHiddenPeriod: String = "Calculating..."
     @State private var heliacalSettingStar: String = "Calculating..."
+    @State private var natalSettingHiddenPeriod: String = "Calculating..."
+    
+    @State private var yearlyRisingStar: String = "Calculating..."
+    @State private var yearlyRisingHiddenPeriod: String = "Calculating..."
+    @State private var yearlySettingStar: String = "Calculating..."
+    @State private var yearlySettingHiddenPeriod: String = "Calculating..."
     
     @State private var planetParans: [(planet: String, angle1: String, star: String, angle2: String, orb: String)] = []
     @State private var axisParans: [(axis: String, star: String, orb: String)] = []
@@ -54,14 +61,22 @@ struct ProfileDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     
-                    // 1. HELIACAL STARS (DYNAMIC CALCULATION)
+                    // 1. NATAL HELIACAL STARS (DYNAMIC CALCULATION)
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("[ 1. HELIACAL STARS ]")
+                        Text("[ 1. NATAL HELIACAL STARS ]")
                             .font(.system(size: 18 * textScale, weight: .bold))
                         Text("- Heliacal Rising Star: \(heliacalRisingStar)")
                             .font(.system(size: 16 * textScale, weight: .bold))
+                        Text("  [\(natalRisingHiddenPeriod)]")
+                            .font(.system(size: 14 * textScale))
+                            .foregroundColor(deepNavyBlack.opacity(0.7))
+                        
                         Text("- Heliacal Setting Star: \(heliacalSettingStar)")
                             .font(.system(size: 16 * textScale, weight: .bold))
+                        Text("  [\(natalSettingHiddenPeriod)]")
+                            .font(.system(size: 14 * textScale))
+                            .foregroundColor(deepNavyBlack.opacity(0.7))
+                        
                         Text("- Sect of Birth: Diurnal (Day)")
                             .font(.system(size: 16 * textScale, weight: .bold))
                     }
@@ -128,6 +143,25 @@ struct ProfileDetailView: View {
                     
                     Divider().background(deepNavyBlack)
                     
+                    // YEARLY HELIACAL STARS OF THE YEAR
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("[ \(String(targetYear)) HELIACAL STAR OF THE YEAR ]")
+                            .font(.system(size: 18 * textScale, weight: .bold))
+                        Text("- Heliacal Rising Star: \(yearlyRisingStar)")
+                            .font(.system(size: 16 * textScale, weight: .bold))
+                        Text("  [\(yearlyRisingHiddenPeriod)]")
+                            .font(.system(size: 14 * textScale))
+                            .foregroundColor(deepNavyBlack.opacity(0.7))
+                        
+                        Text("- Heliacal Setting Star: \(yearlySettingStar)")
+                            .font(.system(size: 16 * textScale, weight: .bold))
+                        Text("  [\(yearlySettingHiddenPeriod)]")
+                            .font(.system(size: 14 * textScale))
+                            .foregroundColor(deepNavyBlack.opacity(0.7))
+                    }
+                    
+                    Divider().background(deepNavyBlack.opacity(0.5)).padding(.vertical, 4)
+                    
                     // SOLAR RETURN STARS
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
@@ -173,7 +207,11 @@ struct ProfileDetailView: View {
                     
                     // TIMELINE YEAR SELECTOR
                     HStack {
-                        Button(action: { targetYear -= 1 }) {
+                        Button(action: {
+                            targetYear -= 1
+                            calculateSolarReturn()
+                            calculateYearlyHeliacal()
+                        }) {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: 20, weight: .bold))
                                 .padding(.horizontal)
@@ -189,6 +227,7 @@ struct ProfileDetailView: View {
                         Button(action: {
                             targetYear += 1
                             calculateSolarReturn()
+                            calculateYearlyHeliacal()
                         }) {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 20, weight: .bold))
@@ -324,6 +363,7 @@ struct ProfileDetailView: View {
         .onAppear {
             calculateParans()
             calculateSolarReturn()
+            calculateYearlyHeliacal()
         }
         .sheet(isPresented: Binding(
             get: { selectedEventID != nil },
@@ -467,16 +507,22 @@ struct ProfileDetailView: View {
     
     private func calculateParans() {
         let math = AstronomicalMath.shared
+        let birthYear = Calendar.current.component(.year, from: profile.dateOfBirth)
+        
         if let rising = math.calculateHeliacalRisingStar(for: profile.dateOfBirth, latitude: profile.latitude, stars: FixedStarsData.proStars) {
             self.heliacalRisingStar = rising.name
+            self.natalRisingHiddenPeriod = math.calculateLyingHiddenPeriod(for: rising, targetYear: birthYear, latitude: profile.latitude)
         } else {
             self.heliacalRisingStar = "N/A"
+            self.natalRisingHiddenPeriod = "N/A"
         }
         
         if let setting = math.calculateHeliacalSettingStar(for: profile.dateOfBirth, latitude: profile.latitude, stars: FixedStarsData.proStars) {
             self.heliacalSettingStar = setting.name
+            self.natalSettingHiddenPeriod = math.calculateLyingHiddenPeriod(for: setting, targetYear: birthYear, latitude: profile.latitude)
         } else {
             self.heliacalSettingStar = "N/A"
+            self.natalSettingHiddenPeriod = "N/A"
         }
         
         let allParans = math.calculateAllParans(
@@ -488,6 +534,31 @@ struct ProfileDetailView: View {
         
         self.planetParans = allParans.planetParans
         self.axisParans = allParans.axisParans
+    }
+    
+    private func calculateYearlyHeliacal() {
+        let math = AstronomicalMath.shared
+        var components = DateComponents()
+        components.year = targetYear
+        components.month = 1
+        components.day = 1
+        guard let targetDate = Calendar.current.date(from: components) else { return }
+        
+        if let rising = math.calculateHeliacalRisingStar(for: targetDate, latitude: profile.latitude, stars: FixedStarsData.proStars) {
+            self.yearlyRisingStar = rising.name
+            self.yearlyRisingHiddenPeriod = math.calculateLyingHiddenPeriod(for: rising, targetYear: targetYear, latitude: profile.latitude)
+        } else {
+            self.yearlyRisingStar = "N/A"
+            self.yearlyRisingHiddenPeriod = "N/A"
+        }
+        
+        if let setting = math.calculateHeliacalSettingStar(for: targetDate, latitude: profile.latitude, stars: FixedStarsData.proStars) {
+            self.yearlySettingStar = setting.name
+            self.yearlySettingHiddenPeriod = math.calculateLyingHiddenPeriod(for: setting, targetYear: targetYear, latitude: profile.latitude)
+        } else {
+            self.yearlySettingStar = "N/A"
+            self.yearlySettingHiddenPeriod = "N/A"
+        }
     }
     
     @ViewBuilder
