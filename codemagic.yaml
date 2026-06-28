@@ -57,6 +57,9 @@ workflows:
         script: keychain add-certificates
       - name: Set up code signing settings on Xcode project
         script: xcode-project use-profiles
+      - name: Dry Run Compile (Check for Swift Errors)
+        script: |
+          xcodebuild clean build -project "CruxParans.xcodeproj" -scheme "CruxParans" -destination "generic/platform=iOS" CODE_SIGNING_ALLOWED=NO
       - name: Build BtoC Edition
         script: |
           xcode-project build-ipa --project "CruxParans.xcodeproj" --scheme "CruxParans"
