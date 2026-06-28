@@ -66,9 +66,12 @@ struct ResultView: View {
                     .padding(.top, 20)
                     .shareSheet(
                         isPresented: $showShareSheet, 
-                        items: [
-                            "I am locked by 【\(guildStar.name)】 - \(guildStar.title).\n\n\(guildStar.flavorText)\n\n#\(guildStar.name.replacingOccurrences(of: " ", with: "")) #ThyFateBeBlessed"
-                        ]
+                        items: {
+                            let tagStar = guildStar.name.replacingOccurrences(of: " ", with: "")
+                            return [
+                                "I am locked by 【\(guildStar.name)】 - \(guildStar.title).\n\n\(guildStar.flavorText)\n\n#\(tagStar) #ThyFateBeBlessed"
+                            ]
+                        }()
                     )
                     
                     // Accept Destiny Button (To Billing/Pro)
